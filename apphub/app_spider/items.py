@@ -1,14 +1,22 @@
 # -*- coding: utf-8 -*-
+from scrapy.contrib.djangoitem import DjangoItem
 
-# Define here the models for your scraped items
-#
-# See documentation in:
-# http://doc.scrapy.org/en/latest/topics/items.html
-
-import scrapy
+from store.models import (
+    Category, Tag, Permission, AppInfo
+)
 
 
-class AppSpiderItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class CategoryItem(DjangoItem):
+    django_model = Category
+
+
+class TagItem(DjangoItem):
+    django_model = Tag
+
+
+class PermissionItem(DjangoItem):
+    django_model = Permission
+
+
+class AppItem(DjangoItem):
+    django_model = AppInfo

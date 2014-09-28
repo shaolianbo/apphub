@@ -15,3 +15,15 @@ NEWSPIDER_MODULE = 'app_spider.spiders'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'app_spider (+http://www.yourdomain.com)'
+
+ITEM_PIPELINES = {
+    'app_spider.pipelines.AppSpiderStorePipeline': 100
+}
+
+LOG_LEVEL = 'INFO'
+
+import os
+os.environ['DJANGO_SETTINGS_MODULE'] = 'apphub.settings'
+
+import django
+django.setup()

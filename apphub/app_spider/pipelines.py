@@ -1,11 +1,20 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+from scrapy.exceptions import DropItem
+from scrapy import log
 
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
+from app_spider.spiders.coolapk_list_spider import CoolApkListSpider
+from store.models import AppInfo
 
 
-class AppSpiderPipeline(object):
+class AppSpiderStorePipeline(object):
     def process_item(self, item, spider):
-        return item
+        if isinstance(spider, CoolApkListSpider):
+            if not AppInfo.objects.filter(apk_name__exact=item['apk_name']).exists():
+                item.save()
+                log.msg('add AppInfo %s' % item, level=log.INFO)
+                return item
+            else:
+                raise DropItem("Duplicate AppItem: %s" % item)
+        else:
+            return item
