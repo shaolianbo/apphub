@@ -1,0 +1,1 @@
+recursive-include  apphub *.css *.js *.jpg *.gif *.png *.html *.md
