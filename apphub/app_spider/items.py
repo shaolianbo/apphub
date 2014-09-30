@@ -28,5 +28,5 @@ class ApkDetailItem(ApkBaseItem):
     """
     custom_field_name = [
         'score', 'details', 'permissions', 'category', 'tags', 'intro',
-        'download_url', 'image_urls'
+        'download_url', 'logo', 'screenshots'
     ]

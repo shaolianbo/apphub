@@ -68,8 +68,8 @@ class CoolApkDetailSpider(scrapy.Spider):
         item['tags'] = tags[1:]
         # intro
         item['intro'] = response.xpath(self.intro_xpath).extract()[0].strip()
-        # image_urls
-        item['image_urls'] = []
-        item['image_urls'].append(response.xpath(self.logo_xpath).extract()[0])
-        item['image_urls'].extend(response.xpath(self.screenshot_xpath).extract())
+        # logo
+        item['logo'] = response.xpath(self.logo_xpath).extract()[0]
+        # screenshots
+        item['screenshots'] = response.xpath(self.screenshot_xpath).extract()
         yield item

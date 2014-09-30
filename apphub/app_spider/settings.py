@@ -28,8 +28,13 @@ NEWSPIDER_MODULE = 'app_spider.spiders'
 # USER_AGENT = 'app_spider (+http://www.yourdomain.com)'
 
 ITEM_PIPELINES = {
+    'scrapy.contrib.pipeline.images.ImagesPipeline': 1,
     'app_spider.pipelines.StoreAppPipeline': 100,
 }
 
 LOG_LEVEL = 'INFO'
 COOKIES_ENABLED = False
+
+from apphub.settings import MEDIA_ROOT
+
+IMAGES_STORE = MEDIA_ROOT
