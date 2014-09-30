@@ -8,7 +8,7 @@ class Category(models.Model):
     """
     分类
     """
-    name = models.CharField(max_length=50, verbose_name="app类型名称")
+    name = models.CharField(max_length=50, unique=True, verbose_name="app类型名称")
 
     def __unicode__(self):
         return self.name
@@ -47,21 +47,41 @@ class Permission(models.Model):
 
 class AppInfo(models.Model):
     """
-    app基本信息
+    app信息
     """
     apk_name = models.CharField(max_length=100, unique=True, verbose_name="apk包名称, app的唯一标识")
     name = models.CharField(max_length=255, verbose_name='app名称')
-    categories = models.ForeignKey(Category, null=True, verbose_name="所属分类")
+    logo = models.ImageField(upload_to='logo', blank=True, null=True, verbose_name='app图标')
+    logo_origin_url = models.URLField(max_length=200, blank=True, null=True, verbose_name='coolapk logo下载地址')
+    download_url = models.URLField(max_length=200, blank=True, null=True, verbose_name='下载地址')
+    category = models.ForeignKey(Category, null=True, verbose_name="所属分类")
     tags = models.ManyToManyField(Tag, verbose_name="标签")
-    score = models.IntegerField(default=0, verbose_name='评分')
-    details = models.CharField(max_length=1024, blank=True, null=True, verbose_name='应用详情')
+    score = models.FloatField(default=0, verbose_name='评分')
     permissions = models.ManyToManyField(Permission, verbose_name='权限')
     intro = models.CharField(max_length=1024, blank=True, null=True, verbose_name='应用简介')
-    related_apps = models.ManyToManyField("self", verbose_name='相关应用')
     is_crawled = models.BooleanField(default=False, verbose_name='信息是否被抓取')
+    # 应用详情
+    last_version = models.CharField(max_length=20, blank=True, null=True, verbose_name='最新版本')
+    rom = models.CharField(max_length=50, blank=True, null=True, verbose_name='支持ROM')
+    language = models.CharField(max_length=20, blank=True, null=True, verbose_name='界面语言')
+    size = models.CharField(max_length=20, blank=True, null=True, verbose_name='软件大小')
+    update_time = models.CharField(max_length=20, blank=True, null=True, verbose_name='更新日期')
+    developer = models.CharField(max_length=50, blank=True, null=True, verbose_name='开发者')
 
     def __unicode__(self):
         return self.name
 
     class Meta:
-        verbose_name = verbose_name_plural = '应用基本信息'
+        verbose_name = verbose_name_plural = '应用信息'
+
+
+class Screenshot(models.Model):
+    app = models.ForeignKey(AppInfo, verbose_name="所属应用")
+    image = models.ImageField(upload_to="screenshot", verbose_name="截图")
+    origin_url = models.URLField(max_length=200, blank=True, null=True, verbose_name='coolapk 截图下载地址')
+
+    def __unicode__(self):
+        return "%s_截图:%s" % (self.app.name, self.id)
+
+    class Meta:
+        verbose_name = verbose_name_plural = "截图"

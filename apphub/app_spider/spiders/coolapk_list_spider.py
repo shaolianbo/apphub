@@ -2,7 +2,7 @@
 import scrapy
 from scrapy.http import Request
 
-from app_spider.items import AppItem
+from app_spider.items import ApkBaseItem
 
 
 class CoolApkListSpider(scrapy.Spider):
@@ -26,7 +26,7 @@ class CoolApkListSpider(scrapy.Spider):
         """
         selectors = response.xpath(app_list_xpath_str)
         for selector in selectors:
-            appitem = AppItem()
+            appitem = ApkBaseItem()
             appitem['name'] = selector.xpath('text()').extract()[0]
             appitem['apk_name'] = selector.xpath('@href').re(r'^/apk/(.*)')[0]
             yield appitem

@@ -1,22 +1,32 @@
 # -*- coding: utf-8 -*-
-from scrapy.contrib.djangoitem import DjangoItem
-
-from store.models import (
-    Category, Tag, Permission, AppInfo
-)
+from scrapy.item import Field, Item, ItemMeta
 
 
-class CategoryItem(DjangoItem):
-    django_model = Category
+class SimpleItemMeta(ItemMeta):
+    def __new__(cls, class_name, bases, attrs):
+        newcls = super(SimpleItemMeta, cls).__new__(cls, class_name, bases, attrs)
+        newcls.fields = newcls.fields.copy()
+        if newcls.custom_field_name:
+            for key in newcls.custom_field_name:
+                if key not in newcls.fields:
+                    newcls.fields[key] = Field()
+        return newcls
 
 
-class TagItem(DjangoItem):
-    django_model = Tag
+class ApkBaseItem(Item):
+    """
+    app列表页中抓取, apk_name
+    """
+    __metaclass__ = SimpleItemMeta
+    custom_field_name = ['apk_name', 'name']
 
 
-class PermissionItem(DjangoItem):
-    django_model = Permission
-
-
-class AppItem(DjangoItem):
-    django_model = AppInfo
+class ApkDetailItem(ApkBaseItem):
+    """
+    app详情页item:
+    image_urls: 第一个url是logo, 之后的url为app截屏
+    """
+    custom_field_name = [
+        'score', 'details', 'permissions', 'category', 'tags', 'intro',
+        'download_url', 'image_urls'
+    ]
