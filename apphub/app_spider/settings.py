@@ -41,6 +41,7 @@ else:
     }
 
 LOG_LEVEL = 'INFO'
+LOG_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'info.log')
 COOKIES_ENABLED = False
 
 from apphub.settings import MEDIA_ROOT

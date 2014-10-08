@@ -74,7 +74,6 @@ class CoolApkDetailSpider(scrapy.Spider):
         item['tags'] = tags[1:]
         # intro
         item['intro'] = ''.join(response.xpath(self.intro_xpath).extract())
-        import pdb; pdb.set_trace()
         # logo
         item['logo'] = {'url': response.xpath(self.logo_xpath).extract()[0], 'path': ''}
         # screenshots
