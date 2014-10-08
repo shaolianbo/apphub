@@ -48,21 +48,13 @@ def update_app_related(app, item):
         app.tags.add(tag)
 
     # screenshot
-    index = 1
-    for is_downloaded, info in item['images'][1:]:
-        if is_downloaded:
-            Screenshot.objects.get_or_create(
-                app=app,
-                origin_url=info['url'],
-                image=info['path']       # 这里没有在upload_to的子目录下
-            )
-        else:
-            Screenshot.objects.get_or_create(
-                app=app,
-                origin_url=item['image_urls'][index],
-                image=None
-            )
-        index += 1
+    for pic in item['screenshots']:
+        Screenshot.objects.get_or_create(
+            app=app,
+            origin_url=pic['url'],
+            image=pic['path']       # 这里没有在upload_to的子目录下
+        )
+
     app.save()
 
 
@@ -92,15 +84,8 @@ class StoreAppPipeline(object):
                 else:
                     log.msg('Unexpected detail key name %s' % key, level=log.WARNING)
             app.intro = item['intro']
-            # image_urls 与 images 对应; images 是 image_urls下载后的结果
-            # image_urls[0] 是 logo  ; image_urls[1:] 是截屏
-            # image_urls 是 url列表 [ url1, url2 ...]
-            # images 结构:[{'path': <存储路径> , 'url': <url> }), ... ]
-            if len(item['image_urls']):
-                app.logo_origin_url = item['image_urls'][0]
-                if item['images'][0][0]:
-                    app.logo = item['images'][0][1]['path']
-            app.logo = item['im']
+            app.logo = item['logo']['path']
+            app.logo_origin_url = item['logo']['url']
             # TODO:download url
             app.is_crawled = 1
             app.save()
@@ -128,13 +113,12 @@ class AppImagePipeline(ImagesPipeline):
                 'url': item['logo']
             }
 
-        screenshots_results = results[1:0]
+        screenshots_results = results[1:]
         screenshots = []
         for i in range(len(item['screenshots'])):
-            pic = {'url': item['screenshots'][i], }
+            pic = {'url': item['screenshots'][i], 'path': ''}
             if screenshots_results[i][0]:
-                
-                
-        image_paths = [x['path'] for ok, x in results if ok]
-        item['image_paths'] = image_paths
+                pic['path'] = screenshots_results[i][1]['path']
+            screenshots.append(pic)
+        item['screenshots'] = screenshots
         return item

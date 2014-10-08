@@ -4,6 +4,7 @@ import scrapy
 from scrapy.http import Request
 
 from app_spider.items import ApkDetailItem
+from store.models import AppInfo
 
 
 class CoolApkDetailSpider(scrapy.Spider):
@@ -27,7 +28,7 @@ class CoolApkDetailSpider(scrapy.Spider):
     /html/body/div[3][@class='container ex-container']/div[@class='row']/div[1][@class='col-md-5']/div[5][@class='panel panel-default ex-card']/div[@class='panel-body']/a//text()
     """
     intro_xpath = """
-    /html/body/div[3][@class='container ex-container']/div[@class='row']/div[1][@class='col-md-5']/div[6][@class='panel panel-default ex-card']/div[2][@class='ex-card-content']/text()
+    /html/body/div[3][@class='container ex-container']/div[@class='row']/div[1][@class='col-md-5']/div[6][@class='panel panel-default ex-card']/div[2][@class='ex-card-content']//text()
     """
     logo_xpath = """
     /html/body/div[2][@class='ex-page-header']/div[@class='container']/div[1][@class='media ex-page-topbar']/a[@class='pull-left ex-apk-view-logo']/img/@src
@@ -43,7 +44,12 @@ class CoolApkDetailSpider(scrapy.Spider):
         如果指定了self.apk_name, 则只抓取某一个app
         """
         if self.apk_name:
-            return [Request(self.start_url_format % self.apk_name)]
+            yield Request(self.start_url_format % self.apk_name)
+        else:
+            # TODO: 把model-instance传递下去,这样在pipeline中,减少对数据库的访问
+            apk_names_to_crawl = AppInfo.objects.filter(is_crawled__exact=0).values_list('apk_name', flat=True)
+            for apk_name in apk_names_to_crawl:
+                yield Request(self.start_url_format % apk_name)
 
     def parse(self, response):
         item = ApkDetailItem()
@@ -67,9 +73,9 @@ class CoolApkDetailSpider(scrapy.Spider):
         item['category'] = tags[0]
         item['tags'] = tags[1:]
         # intro
-        item['intro'] = response.xpath(self.intro_xpath).extract()[0].strip()
+        item['intro'] = ''.join(response.xpath(self.intro_xpath).extract())
         # logo
-        item['logo'] = response.xpath(self.logo_xpath).extract()[0]
+        item['logo'] = {'url': response.xpath(self.logo_xpath).extract()[0], 'path': ''}
         # screenshots
-        item['screenshots'] = response.xpath(self.screenshot_xpath).extract()
+        item['screenshots'] = [{'url': url, 'path': ''} for url in response.xpath(self.screenshot_xpath).extract()]
         yield item
