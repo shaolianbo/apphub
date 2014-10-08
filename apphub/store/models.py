@@ -61,8 +61,8 @@ class AppInfo(models.Model):
     intro = models.CharField(max_length=10240, blank=True, null=True, verbose_name='应用简介')
     is_crawled = models.BooleanField(default=False, verbose_name='信息是否被抓取')
     # 应用详情
-    last_version = models.CharField(max_length=20, blank=True, null=True, verbose_name='最新版本')
-    rom = models.CharField(max_length=50, blank=True, null=True, verbose_name='支持ROM')
+    last_version = models.CharField(max_length=100, blank=True, null=True, verbose_name='最新版本')
+    rom = models.CharField(max_length=100, blank=True, null=True, verbose_name='支持ROM')
     language = models.CharField(max_length=20, blank=True, null=True, verbose_name='界面语言')
     size = models.CharField(max_length=20, blank=True, null=True, verbose_name='软件大小')
     update_time = models.CharField(max_length=20, blank=True, null=True, verbose_name='更新日期')
