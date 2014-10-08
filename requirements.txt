@@ -1,0 +1,5 @@
+-i http://pypi.go.sohuno.com/simple/
+django==1.7
+Scrapy
+mysql-python
+pillow

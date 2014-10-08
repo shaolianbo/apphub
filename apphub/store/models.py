@@ -4,31 +4,31 @@ from __future__ import unicode_literals
 from django.db import models
 
 
-class Category(models.Model):
-    """
-    分类
-    """
-    name = models.CharField(max_length=50, unique=True, verbose_name="app类型名称")
-
-    def __unicode__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = verbose_name_plural = '分类'
-
-
 class Tag(models.Model):
     """
     标签
     """
     name = models.CharField(max_length=50, unique=True, verbose_name="app标签名称")
-    category = models.ForeignKey(Category, verbose_name="所属分类")
 
     def __unicode__(self):
         return self.name
 
     class Meta:
         verbose_name = verbose_name_plural = '标签'
+
+
+class Category(models.Model):
+    """
+    分类
+    """
+    name = models.CharField(max_length=50, unique=True, verbose_name="app类型名称")
+    tags = models.ManyToManyField(Tag, verbose_name='标签')
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = verbose_name_plural = '分类'
 
 
 class Permission(models.Model):
@@ -58,7 +58,7 @@ class AppInfo(models.Model):
     tags = models.ManyToManyField(Tag, verbose_name="标签")
     score = models.FloatField(default=0, verbose_name='评分')
     permissions = models.ManyToManyField(Permission, verbose_name='权限')
-    intro = models.CharField(max_length=1024, blank=True, null=True, verbose_name='应用简介')
+    intro = models.CharField(max_length=10240, blank=True, null=True, verbose_name='应用简介')
     is_crawled = models.BooleanField(default=False, verbose_name='信息是否被抓取')
     # 应用详情
     last_version = models.CharField(max_length=20, blank=True, null=True, verbose_name='最新版本')

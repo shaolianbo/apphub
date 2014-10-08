@@ -37,15 +37,16 @@ def update_app_related(app, item):
     category, created = Category.objects.get_or_create(
         name=item['category']
     )
-    app.category = category
 
     # tags
     for tag_name in item['tags']:
         tag, created = Tag.objects.get_or_create(
             name=tag_name,
-            category=category
         )
+        category.tags.add(tag)
         app.tags.add(tag)
+
+    app.category = category
 
     # screenshot
     for pic in item['screenshots']:
@@ -89,8 +90,8 @@ class StoreAppPipeline(object):
             # TODO:download url
             app.is_crawled = 1
             app.save()
-
             update_app_related(app, item)
+            spider.log('update ok %s' % item['apk_name'], log.INFO)
             return item
 
 
