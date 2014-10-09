@@ -10,19 +10,25 @@ setup(
     version='${version}',
     description=readme.partition('\n')[0],
     long_description=readme,
-    author='wap-tech',
-    author_email='mpcyd@sohu-inc.com',
-    url='http://read.sohu.com',
+    author='lianboshao',
+    author_email='lianboshao@sohu-inc.com',
+    url='http://git.m.sohuno.com/lianboshao/apphub',
     packages=find_packages(exclude=['*.pyc']),
     include_package_data=True,
     package_data={
     },
     install_requires=[
-        "web.py",
+        "django==1.7",
+        "Scrapy",
+        "gunicorn",
+        "supervisor",
+        "mysql-python",
+        "pillow",
+        "djangorestframework",
     ],
     entry_points={
         'console_scripts': [
-            'apphub = apphub.main:main',
+            'apphub = manage:main',
         ]
     },
 )
