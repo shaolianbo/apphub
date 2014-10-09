@@ -1,5 +1,9 @@
--i http://pypi.go.sohuno.com/simple/
+-i http://10.13.85.57:12180/simple/
 django==1.7
 Scrapy
+gunicorn
+supervisor
 mysql-python
 pillow
+djangorestframework
+e .

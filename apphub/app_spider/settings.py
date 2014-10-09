@@ -10,7 +10,7 @@
 
 # init Django
 import os
-profile = os.environ.setdefault("APPSPIDER_PROFILE", "dev")
+profile = os.environ.setdefault("APPHUB_PROFILE", "dev")
 # TODO: 如果必要的话,根据profile加载django配置文件
 # os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mcrawler.settings.%s" % profile)
 os.environ['DJANGO_SETTINGS_MODULE'] = 'apphub.settings'
@@ -30,7 +30,7 @@ NEWSPIDER_MODULE = 'app_spider.spiders'
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = 'app_spider (+http://www.yourdomain.com)'
 
-if profile == 'dev':
+if profile in ['dev', 'test']:
     ITEM_PIPELINES = {
         'app_spider.pipelines.StoreAppPipeline': 100,
     }

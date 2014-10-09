@@ -1,10 +1,8 @@
 from django.conf.urls import patterns, include, url
-from django.contrib import admin
 
-urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'apphub.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
+from app_api.urls import router
 
-    url(r'^admin/', include(admin.site.urls)),
+urlpatterns = patterns(
+    '',
+    url(r'^', include(router.urls))
 )

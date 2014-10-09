@@ -30,7 +30,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
+    'rest_framework',
     'store',
+    'app_api',
     # django
     'django.contrib.admin',
     'django.contrib.auth',
@@ -55,19 +57,6 @@ ROOT_URLCONF = 'apphub.urls'
 WSGI_APPLICATION = 'apphub.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'apphub',
-        'USER': 'root',
-        'PASSWORD': '123',
-        'HOST': 'localhost',
-        'PORT': 3306,
-    }
-}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
@@ -90,3 +79,9 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(os.path.expanduser('~'), 'apphub/media')
 MEDIA_URL = '/media/'
+
+
+# rest_framework
+REST_FRAMEWORK = {
+    'PAGINATE_BY': 10
+}
