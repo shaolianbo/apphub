@@ -28,9 +28,10 @@ def update_app_related(app, item):
     # permissions
     for name, desc in item['permissions']:
         permission, created = Permission.objects.get_or_create(
-            name=name,
-            desc=desc
+            name=name
         )
+        permission.desc = desc
+        permission.save()
         app.permissions.add(permission)
 
     # category
@@ -50,11 +51,13 @@ def update_app_related(app, item):
 
     # screenshot
     for pic in item['screenshots']:
-        Screenshot.objects.get_or_create(
+        shot, created = Screenshot.objects.get_or_create(
             app=app,
             origin_url=pic['url'],
             image=pic['path']       # 这里没有在upload_to的子目录下
         )
+        shot.image = pic['path']
+        shot.save()
 
     app.save()
 
@@ -63,9 +66,10 @@ class StoreAppPipeline(object):
     def process_item(self, item, spider):
         if item.__class__ == ApkBaseItem:
             obj, created = AppInfo.objects.get_or_create(
-                apk_name=item['apk_name'],
-                name=item['name']
+                apk_name=item['apk_name']
             )
+            obj.name = item['name']
+            obj.save()
             if created:
                 log.msg('Get new apk %s' % obj.apk_name, level=log.INFO)
                 return item
@@ -87,7 +91,7 @@ class StoreAppPipeline(object):
             app.intro = item['intro']
             app.logo = item['logo']['path']
             app.logo_origin_url = item['logo']['url']
-            # TODO:download url
+            app.download_url = item['download_url']
             app.is_crawled = 1
             app.save()
             update_app_related(app, item)

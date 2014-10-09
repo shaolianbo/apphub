@@ -1,5 +1,7 @@
 # coding: utf8
 from __future__ import unicode_literals
+import re
+
 import scrapy
 from scrapy.http import Request
 
@@ -35,6 +37,8 @@ class CoolApkDetailSpider(scrapy.Spider):
     """
     screenshot_xpath = "//div[@id='ex-screenshot-carousel' and @class='carousel slide ex-screenshot-carousel']/div[@class='carousel-inner']//img/@src"
 
+    download_xpath = "/html/body/script[1]/text()"
+
     def __init__(self, apk_name=None, *args, **kwargs):
         super(CoolApkDetailSpider, self).__init__(*args, **kwargs)
         self.apk_name = apk_name
@@ -55,8 +59,8 @@ class CoolApkDetailSpider(scrapy.Spider):
         item = ApkDetailItem()
         item['apk_name'] = response.url.split('/')[-1]
         item['score'] = response.xpath(self.score_xpath).extract()[0]
-        # TODO: download_url
-        # ...
+        download_js = response.xpath(self.download_xpath).extract()[0]
+        item['download_url'] = 'coolapk.com' + re.match(r'.*apkDownloadUrl = "(.+)"', download_js).group(1)
         # details
         keys = response.xpath(self.detail_key_xpath).extract()
         keys = [key[:-1] for key in keys]
