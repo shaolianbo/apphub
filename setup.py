@@ -29,6 +29,7 @@ setup(
         "mysql-python",
         "pillow",
         "djangorestframework",
+        "gevent"
     ],
     entry_points={
         'console_scripts': [
