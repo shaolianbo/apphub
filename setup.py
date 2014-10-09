@@ -13,10 +13,14 @@ setup(
     author='lianboshao',
     author_email='lianboshao@sohu-inc.com',
     url='http://git.m.sohuno.com/lianboshao/apphub',
-    packages=find_packages(exclude=['*.pyc']),
+    packages=find_packages('apphub'),
+    package_dir={'': 'apphub'},
     include_package_data=True,
     package_data={
     },
+    scripts=[
+        'apphub/manage.py'
+    ],
     install_requires=[
         "django==1.7",
         "Scrapy",
