@@ -1,9 +1,11 @@
 # coding: utf8
 from __future__ import unicode_literals
 import re
+import os
 
 import scrapy
 from scrapy.http import Request
+from scrapy import log
 
 from app_spider.items import ApkDetailItem
 from store.models import AppInfo
@@ -59,8 +61,6 @@ class CoolApkDetailSpider(scrapy.Spider):
         item = ApkDetailItem()
         item['apk_name'] = response.url.split('/')[-1]
         item['score'] = response.xpath(self.score_xpath).extract()[0]
-        download_js = response.xpath(self.download_xpath).extract()[0]
-        item['download_url'] = 'coolapk.com' + re.match(r'.*apkDownloadUrl = "(.+)"', download_js).group(1)
         # details
         keys = response.xpath(self.detail_key_xpath).extract()
         keys = [key[:-1] for key in keys]
@@ -83,3 +83,19 @@ class CoolApkDetailSpider(scrapy.Spider):
         # screenshots
         item['screenshots'] = [{'url': url, 'path': ''} for url in response.xpath(self.screenshot_xpath).extract()]
         yield item
+        # downLoad pakage
+        download_js = response.xpath(self.download_xpath).extract()[0].strip()
+        download_url = 'http://coolapk.com' + re.match(r'.*apkDownloadUrl = "(.+)"', download_js).group(1)
+        download_req = Request(download_url, callback=self.complete_download)
+        download_req.meta['file_name'] = item['apk_name']
+        yield download_req
+
+    def complete_download(self, response):
+        file_name = response.meta['file_name']
+        if response.status != 200:
+            self.log("%s package download failed: %s" % (file_name, response.status), log.WARN)
+        else:
+            file_path = os.path.join(self.settings['APK_DOWNLOAD_DIR'], file_name)
+            with open(file_path, 'wb') as f:
+                f.write(response.body)
+                self.log('%s package download ok' % file_name, log.INFO)

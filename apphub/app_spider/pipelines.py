@@ -91,7 +91,6 @@ class StoreAppPipeline(object):
             app.intro = item['intro']
             app.logo = item['logo']['path']
             app.logo_origin_url = item['logo']['url']
-            app.download_url = item['download_url']
             app.is_crawled = 1
             app.save()
             update_app_related(app, item)
