@@ -5,20 +5,13 @@ from scrapy.exceptions import DropItem
 from scrapy import log, Request
 from scrapy.contrib.pipeline.images import ImagesPipeline
 
-from store.models import AppInfo, Permission, Category, Tag, Screenshot
-from app_spider.items import ApkBaseItem, ApkDetailItem
+from store.models import AppIdentification, Permission, Category, Tag, Screenshot
+from app_spider.items import AppIdentificationItem, AppInfoItem
 
 
-APK_DES_MAP_MODEL_FIELD_NAME = {
-    '软件名称': 'name',
-    'APK名称': 'apk_name',
-    '最新版本': 'last_version',
-    '支持ROM': 'rom',
-    '界面语言': 'language',
-    '软件大小': 'size',
-    '更新日期': 'update_time',
-    '开发者': 'developer'
-}
+APK_DETAILS_FILED_NAMES = [
+    'name', 'apk_name', 'last_version', 'rom', 'language', 'size', 'update_time', 'developer'
+]
 
 
 def update_app_related(app, item):
@@ -54,7 +47,6 @@ def update_app_related(app, item):
         shot, created = Screenshot.objects.get_or_create(
             app=app,
             origin_url=pic['url'],
-            image=pic['path']       # 这里没有在upload_to的子目录下
         )
         shot.image = pic['path']
         shot.save()
@@ -64,11 +56,10 @@ def update_app_related(app, item):
 
 class StoreAppPipeline(object):
     def process_item(self, item, spider):
-        if item.__class__ == ApkBaseItem:
-            obj, created = AppInfo.objects.get_or_create(
+        if item.__class__ == AppIdentificationItem:
+            obj, created = AppIdentification.objects.get_or_create(
                 apk_name=item['apk_name']
             )
-            obj.name = item['name']
             obj.save()
             if created:
                 log.msg('Get new apk %s' % obj.apk_name, level=log.INFO)
@@ -76,23 +67,20 @@ class StoreAppPipeline(object):
             else:
                 raise DropItem('Duplicate apk %s' % obj.apk_name)
 
-        if item.__class__ == ApkDetailItem:
-            try:
-                app = AppInfo.objects.get(apk_name__exact=item['apk_name'])
-            except AppInfo.DoesNotExist:
-                raise DropItem('DoesNot exit %s in db' % item['apk_name'])
+        if item.__class__ == AppInfoItem:
+            app = item['instance']
             # 基本信息
             app.score = float(item['score'])
-            for key, val in item['details'].items():
-                if key in APK_DES_MAP_MODEL_FIELD_NAME:
-                    setattr(app, APK_DES_MAP_MODEL_FIELD_NAME[key], val)
-                else:
-                    log.msg('Unexpected detail key name %s' % key, level=log.WARNING)
+            for key in APK_DETAILS_FILED_NAMES:
+                if key in item['details']:
+                    setattr(app, key, item['details'][key])
             app.intro = item['intro']
             app.logo = item['logo']['path']
             app.logo_origin_url = item['logo']['url']
+            app.download_url = item['download_url']
             app.is_crawled = 1
             app.save()
+            # 相关信息
             update_app_related(app, item)
             spider.log('update ok %s' % item['apk_name'], log.INFO)
             return item
@@ -100,29 +88,22 @@ class StoreAppPipeline(object):
 
 class AppImagePipeline(ImagesPipeline):
     def get_media_requests(self, item, info):
-        yield Request(item['logo'])
-        for url in item['screenshots']:
-            yield Request(url)
+        yield Request(item['logo']['url'])
+        for shot in item['screenshots']:
+            yield Request(shot['url'])
 
     def item_completed(self, results, item, info):
+        """
+        results 的数据结构:
+        [(True, {url:'源地址', path:'存储地址'}), ... (False, Error)...]
+        results 元素的顺序与get_media_requests中yield的顺序相同
+        """
         logo_result = results[0]
         if logo_result[0]:
-            item['logo'] = {
-                'path': logo_result[1]['path'],
-                'url':  logo_result[1]['url']
-            }
-        else:
-            item['logo'] = {
-                'path': "",
-                'url': item['logo']
-            }
+            item['logo']['path'] = logo_result[1]['path']
 
         screenshots_results = results[1:]
-        screenshots = []
         for i in range(len(item['screenshots'])):
-            pic = {'url': item['screenshots'][i], 'path': ''}
             if screenshots_results[i][0]:
-                pic['path'] = screenshots_results[i][1]['path']
-            screenshots.append(pic)
-        item['screenshots'] = screenshots
+                item['screenshots'][i]['path'] = screenshots_results[i][1]['path']
         return item

@@ -11,6 +11,18 @@ from app_spider.items import ApkDetailItem
 from store.models import AppInfo
 
 
+APK_DETAIL_VERBOSE_NAME_AND_FILED_NAME = {
+    '软件名称': 'name',
+    'APK名称': 'apk_name',
+    '最新版本': 'last_version',
+    '支持ROM': 'rom',
+    '界面语言': 'language',
+    '软件大小': 'size',
+    '更新日期': 'update_time',
+    '开发者': 'developer'
+}
+
+
 class CoolApkDetailSpider(scrapy.Spider):
     name = 'coolapk_detail'
     allowed_domains = ['coolapk.com']
@@ -41,31 +53,47 @@ class CoolApkDetailSpider(scrapy.Spider):
 
     download_xpath = "/html/body/script[1]/text()"
 
-    def __init__(self, apk_name=None, *args, **kwargs):
+    def __init__(self, apk_name=None, is_download_package=False, *args, **kwargs):
         super(CoolApkDetailSpider, self).__init__(*args, **kwargs)
         self.apk_name = apk_name
+        self.is_download_package = is_download_package
 
     def start_requests(self):
         """
         如果指定了self.apk_name, 则只抓取某一个app
         """
         if self.apk_name:
-            yield Request(self.start_url_format % self.apk_name)
+            try:
+                apk = AppInfo.objects.get(apk_name=self.apk_name)
+            except AppInfo.DoesNotExist:
+                self.log("%s DoesNotExist in db" % self.apk_name, log.ERROR)
+                return
+            req = Request(self.start_url_format % self.apk_name)
+            req.meta['instance'] = apk
+            yield req
         else:
-            # TODO: 把model-instance传递下去,这样在pipeline中,减少对数据库的访问
-            apk_names_to_crawl = AppInfo.objects.filter(is_crawled__exact=0).values_list('apk_name', flat=True)
-            for apk_name in apk_names_to_crawl:
-                yield Request(self.start_url_format % apk_name)
+            apks_to_crawl = AppInfo.objects.filter(is_crawled__exact=0)
+            for apk in apks_to_crawl:
+                req = Request(self.start_url_format % apk.apk_name)
+                req.meta['instance'] = apk
+                yield req
 
     def parse(self, response):
         item = ApkDetailItem()
+        item['instance'] = response.meta['instance']
         item['apk_name'] = response.url.split('/')[-1]
         item['score'] = response.xpath(self.score_xpath).extract()[0]
         # details
         keys = response.xpath(self.detail_key_xpath).extract()
         keys = [key[:-1] for key in keys]
         vals = response.xpath(self.detail_val_xpath).extract()
-        item['details'] = dict(zip(keys, vals))
+        details = dict(zip(keys, vals))
+        item['details'] = {}
+        for key, val in details.items():
+            if key in APK_DETAIL_VERBOSE_NAME_AND_FILED_NAME:
+                item['details'][APK_DETAIL_VERBOSE_NAME_AND_FILED_NAME[key]] = val
+            else:
+                log.msg('Unexpected detail key name %s' % key, level=log.WARNING)
         # permission
         names = response.xpath(self.permission_name_xpath).extract()
         descs = response.xpath(self.permission_desc_xpath).extract()
@@ -82,20 +110,24 @@ class CoolApkDetailSpider(scrapy.Spider):
         item['logo'] = {'url': response.xpath(self.logo_xpath).extract()[0], 'path': ''}
         # screenshots
         item['screenshots'] = [{'url': url, 'path': ''} for url in response.xpath(self.screenshot_xpath).extract()]
-        yield item
-        # downLoad pakage
+
         download_js = response.xpath(self.download_xpath).extract()[0].strip()
         download_url = 'http://coolapk.com' + re.match(r'.*apkDownloadUrl = "(.+)"', download_js).group(1)
-        download_req = Request(download_url, callback=self.complete_download)
-        download_req.meta['file_name'] = item['apk_name']
-        yield download_req
+        item['download_url'] = download_url
+        yield item
+        # downLoad pakage
+        if self.is_download_package:
+            download_req = Request(download_url, callback=self.complete_download)
+            download_req.meta['instance'] = item['instance']
+            yield download_req
 
     def complete_download(self, response):
-        file_name = response.meta['file_name']
+        apk = response.meta['instance']
         if response.status != 200:
-            self.log("%s package download failed: %s" % (file_name, response.status), log.WARN)
+            self.log("%s package download failed: %s" % (apk, response.status), log.WARN)
         else:
-            file_path = os.path.join(self.settings['APK_DOWNLOAD_DIR'], file_name)
+            file_path = os.path.join(self.settings['APK_DOWNLOAD_DIR'], apk.apk_name)
             with open(file_path, 'wb') as f:
                 f.write(response.body)
-                self.log('%s package download ok' % file_name, log.INFO)
+                apk.apk_package = file_path
+                self.log('%s package download ok' % apk, log.INFO)

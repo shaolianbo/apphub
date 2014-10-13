@@ -13,20 +13,20 @@ class SimpleItemMeta(ItemMeta):
         return newcls
 
 
-class ApkBaseItem(Item):
+class AppIdentificationItem(Item):
     """
     app列表页中抓取, apk_name
     """
     __metaclass__ = SimpleItemMeta
-    custom_field_name = ['apk_name', 'name']
+    custom_field_name = ['apk_name']
 
 
-class ApkDetailItem(ApkBaseItem):
+class AppInfoItem(AppIdentificationItem):
     """
     app详情页item:
     image_urls: 第一个url是logo, 之后的url为app截屏
     """
     custom_field_name = [
-        'score', 'details', 'permissions', 'category', 'tags', 'intro',
-        'download_url', 'logo', 'screenshots'
+        'name', 'score', 'details', 'permissions', 'category', 'tags', 'intro',
+        'download_url', 'logo', 'screenshots', 'instance'
     ]
