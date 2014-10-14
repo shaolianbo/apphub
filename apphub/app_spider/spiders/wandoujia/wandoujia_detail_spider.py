@@ -24,7 +24,7 @@ class WandoujiaDetailSpider(scrapy.Spider):
     css_version = 'body > div.container > div.detail-wrap > div:nth-child(2) > div.col-right > div > dl > dd:nth-child(8)::text'
     css_permissions = '#j-perms-list > li > span::text'
     css_rom = 'body > div.container > div.detail-wrap > div:nth-child(2) > div.col-right > div > dl > dd.perms::text'
-    css_developer = 'body > div.container > div.detail-wrap > div:nth-child(2) > div.col-right > div > dl > dd:nth-child(12) > a > span::text'
+    css_developer = 'body > div.container > div.detail-wrap > div:nth-child(2) > div.col-right > div > dl > dd:nth-child(12) > span:nth-child(1) > meta::attr(content)'
 
     def __init__(self, apk_name=None, top_type=AppIdentification.APP, is_flush_db=False, *args, **kwargs):
         super(WandoujiaDetailSpider, self).__init__(*args, **kwargs)
