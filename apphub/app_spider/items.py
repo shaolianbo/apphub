@@ -17,16 +17,17 @@ class AppIdentificationItem(Item):
     """
     app列表页中抓取, apk_name
     """
-    __metaclass__ = SimpleItemMeta
-    custom_field_name = ['apk_name']
+    apk_name = Field()
+    top_type = Field()
 
 
-class AppInfoItem(AppIdentificationItem):
+class AppInfoItem(Item):
     """
     app详情页item:
     image_urls: 第一个url是logo, 之后的url为app截屏
     """
+    __metaclass__ = SimpleItemMeta
     custom_field_name = [
-        'name', 'score', 'details', 'permissions', 'category', 'tags', 'intro',
-        'download_url', 'logo', 'screenshots', 'instance'
+        'apk_name', 'name', 'score', 'details', 'permissions', 'category', 'tags', 'intro',
+        'download_url', 'logo', 'screenshots', 'instance', 'data_source', 'permissions_str'
     ]

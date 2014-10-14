@@ -19,13 +19,17 @@ def update_app_related(app, item):
     更新app关联数据
     """
     # permissions
-    for name, desc in item['permissions']:
-        permission, created = Permission.objects.get_or_create(
-            name=name
-        )
-        permission.desc = desc
-        permission.save()
-        app.permissions.add(permission)
+    if 'permissions' in item:
+        for name, desc in item['permissions']:
+            permission, created = Permission.objects.get_or_create(
+                name=name
+            )
+            permission.desc = desc
+            permission.save()
+            app.permissions.add(permission)
+
+    if 'permissions_str' in item:
+        app.permissions_str = item['permissions_str']
 
     # category
     category, created = Category.objects.get_or_create(
@@ -60,7 +64,9 @@ class StoreAppPipeline(object):
             obj, created = AppIdentification.objects.get_or_create(
                 apk_name=item['apk_name']
             )
-            obj.save()
+            if 'top_type' in item and obj.top_type != item['top_type']:
+                obj.top_type = item['top_type']
+                obj.save()
             if created:
                 log.msg('Get new apk %s' % obj.apk_name, level=log.INFO)
                 return item
@@ -70,7 +76,9 @@ class StoreAppPipeline(object):
         if item.__class__ == AppInfoItem:
             app = item['instance']
             # 基本信息
-            app.score = float(item['score'])
+            app.name = item['name']
+            if 'score' in item:
+                app.score = float(item['score'])
             for key in APK_DETAILS_FILED_NAMES:
                 if key in item['details']:
                     setattr(app, key, item['details'][key])
@@ -88,9 +96,13 @@ class StoreAppPipeline(object):
 
 class AppImagePipeline(ImagesPipeline):
     def get_media_requests(self, item, info):
-        yield Request(item['logo']['url'])
-        for shot in item['screenshots']:
-            yield Request(shot['url'])
+        if 'logo' in item:
+            yield Request(item['logo']['url'])
+            if 'screenshots' in item:
+                for shot in item['screenshots']:
+                    yield Request(shot['url'])
+        else:
+            return
 
     def item_completed(self, results, item, info):
         """

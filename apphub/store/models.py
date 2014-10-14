@@ -49,7 +49,14 @@ class AppIdentification(models.Model):
     """
     app 唯一标识: 抓取数据的基础
     """
+    APP = 1
+    GAME = 2
+    TYPE_CHOICES = (
+        (APP, '应用'),
+        (GAME, '游戏')
+    )
     apk_name = models.CharField(max_length=100, unique=True, verbose_name="apk包名称, app的唯一标识")
+    top_type = models.IntegerField(default=APP, choices=TYPE_CHOICES, verbose_name='顶级分类: 应用/游戏')
 
     def __unicode__(self):
         return self.apk_name
@@ -65,12 +72,12 @@ class AppInfo(models.Model):
     COOLAPK = 1
     WANDOUJIA = 2
     DATA_SOURCE_CHOICES = (
-        ('1', '酷安'),
-        ('2', '豌豆荚')
+        (COOLAPK, '酷安'),
+        (WANDOUJIA, '豌豆荚')
     )
     app_id = models.ForeignKey(AppIdentification, verbose_name='应用唯一标识')
     data_source = models.IntegerField(choices=DATA_SOURCE_CHOICES, verbose_name='数据来源')
-    name = models.CharField(max_length=255, verbose_name='app名称')
+    name = models.CharField(max_length=255, blank=True, null=True, verbose_name='app名称')
     logo = models.ImageField(upload_to='logo', blank=True, null=True, verbose_name='app图标')
     logo_origin_url = models.URLField(max_length=200, blank=True, null=True, verbose_name='coolapk logo下载地址')
     download_url = models.URLField(max_length=200, blank=True, null=True, verbose_name='下载地址')

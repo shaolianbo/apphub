@@ -46,7 +46,7 @@ else:
         'app_spider.pipelines.StoreAppPipeline': 100,
     }
 
-#if profile in ['test', 'product']:
-#    LOG_LEVEL = 'INFO'
-#    LOG_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'info.log')
-#    LOG_STDOUT = True
+if profile in ['test', 'product']:
+    LOG_LEVEL = 'INFO'
+    LOG_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'info.log')
+    LOG_STDOUT = True

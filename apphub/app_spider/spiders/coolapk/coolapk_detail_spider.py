@@ -7,7 +7,7 @@ import scrapy
 from scrapy.http import Request
 from scrapy import log
 
-from app_spider.items import ApkDetailItem
+from app_spider.items import AppInfoItem
 from store.models import AppInfo
 
 
@@ -79,10 +79,11 @@ class CoolApkDetailSpider(scrapy.Spider):
                 yield req
 
     def parse(self, response):
-        item = ApkDetailItem()
+        item = AppInfoItem()
         item['instance'] = response.meta['instance']
         item['apk_name'] = response.url.split('/')[-1]
         item['score'] = response.xpath(self.score_xpath).extract()[0]
+        # TODO: item['name']
         # details
         keys = response.xpath(self.detail_key_xpath).extract()
         keys = [key[:-1] for key in keys]
