@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 
 from store.models import (
-    AppInfo, Tag, Category, Permission, Screenshot
+    AppInfo, Tag, Category, Permission, Screenshot, AppIdentification
 )
 from .serializers import AppSerializer, CategorySerializer, ScreenshotSerializer
 
@@ -17,6 +17,10 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
 
 class PermissionViewSet(viewsets.ReadOnlyModelViewSet):
     model = Permission
+
+
+class AppIdentificationViewSet(viewsets.ReadOnlyModelViewSet):
+    model = AppIdentification
 
 
 class AppViewSet(viewsets.ReadOnlyModelViewSet):
