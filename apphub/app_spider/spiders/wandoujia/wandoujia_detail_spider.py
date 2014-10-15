@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 import scrapy
 from scrapy.http import Request
-from scrapy import log
 
 from app_spider.items import AppInfoItem
 from store.models import AppInfo, AppIdentification
@@ -53,12 +52,14 @@ class WandoujiaDetailSpider(scrapy.Spider):
             req = Request(self.app_detail_url_format % self.apk_name)
             req.meta['apk_name'] = self.apk_name
             req.meta['instance'] = appinfo
+            req.meta['dont_redirect'] = True
             yield req
         else:
             for appinfo in AppInfo.objects.filter(data_source=AppInfo.WANDOUJIA, is_crawled=False):
                 req = Request(self.app_detail_url_format % appinfo.app_id.apk_name)
                 req.meta['apk_name'] = appinfo.app_id.apk_name
                 req.meta['instance'] = appinfo
+                req.meta['dont_redirect'] = True
                 yield req
 
     def parse(self, response):
@@ -86,7 +87,9 @@ class WandoujiaDetailSpider(scrapy.Spider):
         details['size'] = response.css(self.css_size).extract()[0].strip()
         details['last_version'] = response.css(self.css_version).extract()[0]
         details['rom'] = response.css(self.css_rom).extract()[0].strip()
-        details['developer'] = response.css(self.css_developer).extract()[0]
+        developer = response.css(self.css_developer)
+        if developer:
+            details['developer'] = developer.extract()[0]
         item['details'] = details
 
         yield item
