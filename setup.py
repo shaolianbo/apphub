@@ -23,6 +23,7 @@ setup(
     ],
     install_requires=[
         "django==1.7",
+        "cffi",       # 在scrapy之前安装cffi, 否则在无法访问外网时, scrapy安装失败
         "Scrapy",
         "gunicorn",
         "supervisor",
