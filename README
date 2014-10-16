@@ -3,3 +3,11 @@ HELLO README!
 note:
 
 虚拟机需要预先安装libfii-devel
+
+TODO:
+
+1. 如果某个必须字段没有赋值, 在load_item时抛出异常: ItemLoader.load_item重载
+
+2. 如果某个字段, 有赋值, 但是爬取结果为空, 说明网页结构放生了变化, 则打出错误日志. output_process 判断
+
+3. ImageDownloadPipeline 更合理化, 不要按照顺序去区分logo还是screenshots

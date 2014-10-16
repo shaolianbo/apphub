@@ -60,13 +60,13 @@ class AppInfoItem(DefaultsItem):
     developer = Field(default='')
 
 
+def image_field_in_processor(url):
+    return {'url': url, 'path': ''}
+
+
 class AppInfoItemLoader(ItemLoader):
     default_output_processor = TakeFirst()
-    default_input_processor = MapCompose(str.strip)
-
-    @staticmethod
-    def image_field_in_processor(url):
-        return {'url': url, 'path': ''}
+    default_input_processor = MapCompose(unicode.strip)
 
     logo_in = MapCompose(image_field_in_processor)
 
@@ -78,5 +78,7 @@ class AppInfoItemLoader(ItemLoader):
     tags_out = Identity()
 
     permissions_str_out = Join(';')
+
+    permissions_out = Identity()
 
     instance_in = Identity()
