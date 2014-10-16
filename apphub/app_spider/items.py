@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 from scrapy.item import Field, Item, ItemMeta
+from scrapy.contrib.loader import ItemLoader
+from scrapy.contrib.loader.processor import TakeFirst, MapCompose, Identity, Join
+
+from store.models import AppInfo
 
 
 class SimpleItemMeta(ItemMeta):
@@ -21,13 +25,58 @@ class AppIdentificationItem(Item):
     top_type = Field()
 
 
-class AppInfoItem(Item):
-    """
-    app详情页item:
-    image_urls: 第一个url是logo, 之后的url为app截屏
-    """
-    __metaclass__ = SimpleItemMeta
-    custom_field_name = [
-        'apk_name', 'name', 'score', 'details', 'permissions', 'category', 'tags', 'intro',
-        'download_url', 'logo', 'screenshots', 'instance', 'data_source', 'permissions_str'
-    ]
+class DefaultsItem(Item):
+    """ Item with default values """
+    def __getitem__(self, key):
+        try:
+            return self._values[key]
+        except KeyError:
+            field = self.fields[key]
+            if 'default' in field:
+                return field['default']
+            raise
+
+
+class AppInfoItem(DefaultsItem):
+    instance = Field()
+    apk_name = Field()
+    name = Field(default='')
+    score = Field(default=0)
+    details = Field(default={})
+    permissions = Field(default=[])
+    permissions_str = Field(default="")
+    category = Field()
+    tags = Field(default=[])
+    intro = Field(default='')
+    download_url = Field(default='')
+    logo = Field(default='')
+    screenshots = Field(default=[])
+    data_source = Field(default=AppInfo.WANDOUJIA)
+    last_version = Field(default='')
+    rom = Field(default='')
+    language = Field(default='')
+    size = Field(default='')
+    update_time = Field(default=None)
+    developer = Field(default='')
+
+
+class AppInfoItemLoader(ItemLoader):
+    default_output_processor = TakeFirst()
+    default_input_processor = MapCompose(str.strip)
+
+    @staticmethod
+    def image_field_in_processor(url):
+        return {'url': url, 'path': ''}
+
+    logo_in = MapCompose(image_field_in_processor)
+
+    screenshots_in = MapCompose(image_field_in_processor)
+    screenshots_out = Identity()
+
+    intro_out = Join('<br>')
+
+    tags_out = Identity()
+
+    permissions_str_out = Join(';')
+
+    instance_in = Identity()

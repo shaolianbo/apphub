@@ -10,7 +10,8 @@ from app_spider.items import AppIdentificationItem, AppInfoItem
 
 
 APK_DETAILS_FILED_NAMES = [
-    'name', 'apk_name', 'last_version', 'rom', 'language', 'size', 'update_time', 'developer'
+    'name', 'apk_name', 'last_version', 'rom', 'language', 'size', 'update_time', 'developer',
+    'intro', 'download_url', 'score'
 ]
 
 
@@ -19,17 +20,15 @@ def update_app_related(app, item):
     更新app关联数据
     """
     # permissions
-    if 'permissions' in item:
-        for name, desc in item['permissions']:
-            permission, created = Permission.objects.get_or_create(
-                name=name
-            )
-            permission.desc = desc
-            permission.save()
-            app.permissions.add(permission)
+    for name, desc in item['permissions']:
+        permission, created = Permission.objects.get_or_create(
+            name=name
+        )
+        permission.desc = desc
+        permission.save()
+        app.permissions.add(permission)
 
-    if 'permissions_str' in item:
-        app.permissions_str = item['permissions_str']
+    app.permissions_str = item['permissions_str']
 
     # category
     category, created = Category.objects.get_or_create(
@@ -76,16 +75,10 @@ class StoreAppPipeline(object):
         if item.__class__ == AppInfoItem:
             app = item['instance']
             # 基本信息
-            app.name = item['name']
-            if 'score' in item:
-                app.score = float(item['score'])
             for key in APK_DETAILS_FILED_NAMES:
-                if key in item['details']:
-                    setattr(app, key, item['details'][key])
-            app.intro = item['intro']
+                setattr(app, key, item[key])
             app.logo = item['logo']['path']
             app.logo_origin_url = item['logo']['url']
-            app.download_url = item['download_url']
             app.is_crawled = 1
             app.save()
             # 相关信息
