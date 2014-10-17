@@ -22,8 +22,8 @@ class WandoujiaDetailSpider(AppDetailBaseSpider):
     css_rom = 'body > div.container > div.detail-wrap > div:nth-child(2) > div.col-right > div > dl > dd.perms::text'
     css_developer = 'body > div.container > div.detail-wrap > div:nth-child(2) > div.col-right > div > dl > dd:nth-child(12) > span:nth-child(1) > meta::attr(content)'
 
-    def parse(self, response):
-        for item in super(WandoujiaDetailSpider, self).parse(response):
+    def _parse(self, response):
+        for item in super(WandoujiaDetailSpider, self)._parse(response):
             tags_css = 'body > div.container > div.detail-wrap > div:nth-child(2) > div.col-right > div > dl > dd.tag-box > a::text'
             tags = response.css(tags_css).extract()
             item['category'] = tags[0]

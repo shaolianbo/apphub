@@ -91,11 +91,9 @@ class AppImagePipeline(ImagesPipeline):
     def get_media_requests(self, item, info):
         if 'logo' in item:
             yield Request(item['logo']['url'])
-            if 'screenshots' in item:
-                for shot in item['screenshots']:
-                    yield Request(shot['url'])
-        else:
-            return
+        if 'screenshots' in item:
+            for shot in item['screenshots']:
+                yield Request(shot['url'])
 
     def item_completed(self, results, item, info):
         """
@@ -103,11 +101,14 @@ class AppImagePipeline(ImagesPipeline):
         [(True, {url:'源地址', path:'存储地址'}), ... (False, Error)...]
         results 元素的顺序与get_media_requests中yield的顺序相同
         """
-        logo_result = results[0]
-        if logo_result[0]:
-            item['logo']['path'] = logo_result[1]['path']
+        if 'logo' in item:
+            logo_result = results[0]
+            if logo_result[0]:
+                item['logo']['path'] = logo_result[1]['path']
+            screenshots_results = results[1:]
+        else:
+            screenshots_results = results
 
-        screenshots_results = results[1:]
         for i in range(len(item['screenshots'])):
             if screenshots_results[i][0]:
                 item['screenshots'][i]['path'] = screenshots_results[i][1]['path']

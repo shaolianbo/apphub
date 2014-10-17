@@ -1,20 +1,32 @@
 # -*- coding: utf-8 -*-
-from scrapy.item import Field, Item, ItemMeta
+from scrapy.item import Field, Item
 from scrapy.contrib.loader import ItemLoader
 from scrapy.contrib.loader.processor import TakeFirst, MapCompose, Identity, Join
 
 from store.models import AppInfo
 
 
-class SimpleItemMeta(ItemMeta):
-    def __new__(cls, class_name, bases, attrs):
-        newcls = super(SimpleItemMeta, cls).__new__(cls, class_name, bases, attrs)
-        newcls.fields = newcls.fields.copy()
-        if newcls.custom_field_name:
-            for key in newcls.custom_field_name:
-                if key not in newcls.fields:
-                    newcls.fields[key] = Field()
-        return newcls
+class ItemInvalidException(Exception):
+    item_field_msg = 'exception'
+
+    def __init__(self, item, field_names):
+        self.field_names = field_names or []
+        if type(self.field_names) != list:
+            self.field_names = [self.field_names]
+        self.item_class = item.__class__.__name__ or ''
+        self.msg = 'exception'
+
+    def __str__(self):
+        field_str = '(' + ','.join(self.field_names) + ')'
+        return "ItemInvalid %s %s : %s" % (self.item_class, field_str, self.item_field_msg)
+
+
+class LackForFieldError(ItemInvalidException):
+    item_field_msg = 'field should be assigned a value'
+
+
+class EmptyCrawlResultExcption(ItemInvalidException):
+    item_field_msg = 'fied get empty value from web'
 
 
 class AppIdentificationItem(Item):
@@ -36,16 +48,23 @@ class DefaultsItem(Item):
                 return field['default']
             raise
 
+    def is_valid(self):
+        for name, field in self.fields.items():
+            if name not in self._values:
+                if 'default' not in field:
+                    raise LackForFieldError(self, name)
+        return True
+
 
 class AppInfoItem(DefaultsItem):
     instance = Field()
     apk_name = Field()
+    category = Field()
     name = Field(default='')
     score = Field(default=0)
     details = Field(default={})
     permissions = Field(default=[])
     permissions_str = Field(default="")
-    category = Field()
     tags = Field(default=[])
     intro = Field(default='')
     download_url = Field(default='')
@@ -65,6 +84,8 @@ def image_field_in_processor(url):
 
 
 class AppInfoItemLoader(ItemLoader):
+    default_item_class = AppInfoItem
+
     default_output_processor = TakeFirst()
     default_input_processor = MapCompose(unicode.strip)
 
