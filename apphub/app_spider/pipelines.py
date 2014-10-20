@@ -7,6 +7,7 @@ from scrapy.contrib.pipeline.images import ImagesPipeline
 
 from store.models import AppIdentification, Permission, Category, Tag, Screenshot
 from app_spider.items import AppIdentificationItem, AppInfoItem
+from app_spider.signals import appinfo_saved
 
 
 APK_DETAILS_FILED_NAMES = [
@@ -58,6 +59,14 @@ def update_app_related(app, item):
 
 
 class StoreAppPipeline(object):
+
+    def __init__(self, crawler):
+        self.crawler = crawler
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler)
+
     def process_item(self, item, spider):
         if item.__class__ == AppIdentificationItem:
             obj, created = AppIdentification.objects.get_or_create(
@@ -84,6 +93,7 @@ class StoreAppPipeline(object):
             # 相关信息
             update_app_related(app, item)
             spider.log('update ok %s' % item['apk_name'], log.INFO)
+            self.crawler.signals.send_catch_log(appinfo_saved, spider=spider)
             return item
 
 

@@ -33,6 +33,7 @@ INSTALLED_APPS = (
     'rest_framework',
     'store',
     'app_api',
+    'app_spider',
     # django
     'django.contrib.admin',
     'django.contrib.auth',
