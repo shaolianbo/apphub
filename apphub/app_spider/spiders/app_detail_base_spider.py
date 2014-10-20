@@ -45,7 +45,7 @@ class AppDetailBaseSpider(scrapy.Spider):
             req.meta['dont_redirect'] = True
             yield req
         else:
-            for appinfo in AppInfo.objects.filter(data_source=AppInfo.WANDOUJIA, is_crawled=False):
+            for appinfo in AppInfo.objects.filter(data_source=self.data_source, is_crawled=False):
                 req = Request(self.app_detail_url_format % appinfo.app_id.apk_name)
                 req.meta['apk_name'] = appinfo.app_id.apk_name
                 req.meta['instance'] = appinfo
