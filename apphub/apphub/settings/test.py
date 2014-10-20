@@ -5,9 +5,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'apphub',
-        'USER': 'root',
-        'PASSWORD': '123',
-        'HOST': '10.10.93.39',
+        'USER': 'solar',
+        'PASSWORD': '!@#solar',
+        'HOST': '10.13.85.89',
         'PORT': 3306,
     }
 }
