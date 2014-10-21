@@ -2,7 +2,9 @@ from django.conf.urls import patterns, include, url
 
 from app_api.urls import router
 
+
 urlpatterns = patterns(
     '',
-    url(r'^', include(router.urls))
+    url(r'^api/', include(router.urls, namespace='spider')),
+    url(r'^spider/', include('app_spider.urls', namespace='spider'))
 )

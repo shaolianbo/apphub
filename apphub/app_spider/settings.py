@@ -54,6 +54,6 @@ if profile in ['test', 'product']:
 DOWNLOAD_DELAY = 2
 CONCURRENT_REQUESTS = 1
 
-EXTENSIONS = {
-    'app_spider.exten_crawl_result.CrawlResult': 500
-}
+#EXTENSIONS = {
+#    'app_spider.exten_crawl_result.CrawlResult': 500
+#}

@@ -93,7 +93,7 @@ class StoreAppPipeline(object):
             # 相关信息
             update_app_related(app, item)
             spider.log('update ok %s' % item['apk_name'], log.INFO)
-            self.crawler.signals.send_catch_log(appinfo_saved, spider=spider)
+            self.crawler.signals.send_catch_log(appinfo_saved, spider=spider, apk_name=app.apk_name)
             return item
 
 
