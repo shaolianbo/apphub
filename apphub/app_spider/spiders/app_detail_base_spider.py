@@ -19,10 +19,15 @@ class AppDetailBaseSpider(scrapy.Spider):
         self.apk_names = apk_names
         self.top_type = top_type
         self.is_flush_db = bool(is_flush_db)
-        self.field_names_with_css = []
+        self.field_names_with_css = {}
         if self.apk_names:
             if type(self.apk_names) in (unicode, str):
                 self.apk_names = self.apk_names.split(',')
+        for name, attr in self.__class__.__dict__.items():
+            match = re.match(r'css_(.+)', name)
+            if match and not callable(attr):
+                field_name = match.group(1)
+                self.field_names_with_css[field_name] = attr
 
     def start_requests(self):
         if self.is_flush_db:
@@ -58,12 +63,8 @@ class AppDetailBaseSpider(scrapy.Spider):
 
     def _parse(self, response):
         loader = AppInfoItemLoader(response=response)
-        for name, attr in self.__class__.__dict__.items():
-            match = re.match(r'css_(.+)', name)
-            if match and not callable(attr):
-                field_name = match.group(1)
-                self.field_names_with_css.append(field_name)
-                loader.add_css(field_name, attr)
+        for field_name, attr in self.field_names_with_css.items():
+            loader.add_css(field_name, attr)
         item = loader.load_item()
         for name in self.field_names_with_css:
             if name not in item._values:

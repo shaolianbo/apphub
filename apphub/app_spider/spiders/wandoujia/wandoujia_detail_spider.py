@@ -42,7 +42,6 @@ class WandoujiaDetailSpider(AppDetailBaseSpider):
         item['instance'] = instance
         item['apk_name'] = response.meta['apk_name']
         item['data_source'] = AppInfo.WANDOUJIA
-        import pdb; pdb.set_trace()
         if item['update_date']:
             item['update_date'] = date(*[int(n) for n in item['update_date'].split('-')])
         return item
