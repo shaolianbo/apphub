@@ -14,6 +14,7 @@ setup(
     author_email='lianboshao@sohu-inc.com',
     url='http://git.m.sohuno.com/lianboshao/apphub',
     packages=find_packages('apphub'),
+    package_dir={'': 'apphub'},
     include_package_data=True,
     scripts=[
         'apphub/manage.py',
