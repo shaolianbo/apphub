@@ -14,12 +14,10 @@ setup(
     author_email='lianboshao@sohu-inc.com',
     url='http://git.m.sohuno.com/lianboshao/apphub',
     packages=find_packages('apphub'),
-    package_dir={'': 'apphub'},
     include_package_data=True,
-    package_data={
-    },
     scripts=[
-        'apphub/manage.py'
+        'apphub/manage.py',
+        'crawl_wandoujia.sh'
     ],
     install_requires=[
         "django==1.7",
@@ -32,9 +30,4 @@ setup(
         "djangorestframework",
         "gevent"
     ],
-    entry_points={
-        'console_scripts': [
-            'apphub = manage:main',
-        ]
-    },
 )

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export SCRAPY_SETTINGS_MODULE=app_spider.settings
 while true
 do
     echo 'start'
