@@ -75,7 +75,8 @@ class AppInfoItem(DefaultsItem):
     rom = Field(default='')
     language = Field(default='')
     size = Field(default='')
-    update_time = Field(default=None)
+    update_log = Field(default='')
+    update_date = Field(default=None)
     developer = Field(default='')
 
 

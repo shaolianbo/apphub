@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from datetime import datetime
 
 from scrapy.exceptions import DropItem
 from scrapy import log, Request
@@ -11,8 +12,8 @@ from app_spider.signals import appinfo_saved
 
 
 APK_DETAILS_FILED_NAMES = [
-    'name', 'apk_name', 'last_version', 'rom', 'language', 'size', 'update_time', 'developer',
-    'intro', 'download_url', 'score'
+    'name', 'apk_name', 'last_version', 'rom', 'language', 'size', 'developer',
+    'intro', 'download_url', 'score', 'update_date', 'update_log'
 ]
 
 
@@ -89,6 +90,7 @@ class StoreAppPipeline(object):
             app.logo = item['logo']['path']
             app.logo_origin_url = item['logo']['url']
             app.is_crawled = 1
+            app.last_crawl_time = datetime.now()
             app.save()
             # 相关信息
             update_app_related(app, item)

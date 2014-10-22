@@ -87,16 +87,19 @@ class AppInfo(models.Model):
     score = models.FloatField(default=0, verbose_name='评分')
     permissions = models.ManyToManyField(Permission, verbose_name='权限')
     permissions_str = models.CharField(max_length=1024, blank=True, null=True, verbose_name="权限字符串", help_text="如果爬虫只能爬到权限的中文名称,就存储这些字符串")
-    intro = models.CharField(max_length=10240, blank=True, null=True, verbose_name='应用简介')
+    intro = models.TextField(blank=True, null=True, verbose_name='应用简介')
     is_crawled = models.BooleanField(default=False, verbose_name='信息是否被抓取')
     # 应用详情
     last_version = models.CharField(max_length=100, blank=True, null=True, verbose_name='最新版本')
     rom = models.CharField(max_length=100, blank=True, null=True, verbose_name='支持ROM')
     language = models.CharField(max_length=20, blank=True, null=True, verbose_name='界面语言')
     size = models.CharField(max_length=20, blank=True, null=True, verbose_name='软件大小')
-    update_time = models.CharField(max_length=20, blank=True, null=True, verbose_name='更新日期')
+    update_log = models.TextField(blank=True, null=True, verbose_name='更新记录')
+    update_date = models.DateField(blank=True, null=True, verbose_name='更新日期')
     developer = models.CharField(max_length=50, blank=True, null=True, verbose_name='开发者')
+
     is_continue = models.BooleanField(default=True, verbose_name='是否持续抓取更新')
+    last_crawl_time = models.DateTimeField(blank=True, null=True, verbose_name='最后抓取时间')
 
     def __unicode__(self):
         return self.name
