@@ -51,9 +51,4 @@ if profile in ['test', 'product']:
     LOG_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'info.log')
     LOG_STDOUT = True
 
-DOWNLOAD_DELAY = 2
-CONCURRENT_REQUESTS = 1
-
-#EXTENSIONS = {
-#    'app_spider.exten_crawl_result.CrawlResult': 500
-#}
+DOWNLOAD_DELAY = 0.25
