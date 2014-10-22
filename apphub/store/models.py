@@ -96,6 +96,7 @@ class AppInfo(models.Model):
     size = models.CharField(max_length=20, blank=True, null=True, verbose_name='软件大小')
     update_time = models.CharField(max_length=20, blank=True, null=True, verbose_name='更新日期')
     developer = models.CharField(max_length=50, blank=True, null=True, verbose_name='开发者')
+    is_continue = models.BooleanField(default=True, verbose_name='是否持续抓取更新')
 
     def __unicode__(self):
         return self.name

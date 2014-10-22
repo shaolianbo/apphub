@@ -23,12 +23,15 @@ class WandoujiaDetailSpider(AppDetailBaseSpider):
     css_developer = 'body > div.container > div.detail-wrap > div:nth-child(2) > div.col-right > div > dl > dd:nth-child(12) > span:nth-child(1) > meta::attr(content)'
 
     def _parse(self, response):
-        for item in super(WandoujiaDetailSpider, self)._parse(response):
-            tags_css = 'body > div.container > div.detail-wrap > div:nth-child(2) > div.col-right > div > dl > dd.tag-box > a::text'
-            tags = response.css(tags_css).extract()
-            item['category'] = tags[0]
-            item['tags'] = tags[1:]
-            item['instance'] = response.meta['instance']
-            item['apk_name'] = response.meta['apk_name']
-            item['data_source'] = AppInfo.WANDOUJIA
-            yield item
+        item = super(WandoujiaDetailSpider, self)._parse(response)
+        instance = response.meta['instance']
+        if item['last_version'] and (item['last_version'] == instance.last_version):
+            return None
+        tags_css = 'body > div.container > div.detail-wrap > div:nth-child(2) > div.col-right > div > dl > dd.tag-box > a::text'
+        tags = response.css(tags_css).extract()
+        item['category'] = tags[0]
+        item['tags'] = tags[1:]
+        item['instance'] = instance
+        item['apk_name'] = response.meta['apk_name']
+        item['data_source'] = AppInfo.WANDOUJIA
+        return item

@@ -1,17 +1,16 @@
 import json
 
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET
 
 from app_spider.management.commands.run_spider import Command
+from store.models import AppInfo
 
 
-@csrf_exempt
-@require_POST
+@require_GET
 def crawl(request):
-    apk_names = request.POST.getlist('apk_names', [])
-    top_type = request.POST.get('top_type', 0)
+    apk_names = request.GET.getlist('apk_names', [])
+    top_type = request.GET.get('top_type', 0)
     if not (apk_names and top_type):
         return HttpResponseBadRequest('post param wrong')
     c = Command(apk_names, top_type)
@@ -22,3 +21,23 @@ def crawl(request):
     )
     resp = HttpResponse(json.dumps(resp_body))
     return resp
+
+
+@require_GET
+def change_continue(request):
+    apk_names = request.GET.getlist('apk_names', [])
+    error = {}
+    success = True
+    for apk_name in apk_names:
+        try:
+            appinfo = AppInfo.objects.get(app_id__apk_name=apk_name)
+        except AppInfo.DoesNotExist:
+            error[apk_name] = 'not found'
+            success = False
+        appinfo.is_continue = not appinfo.is_continue
+        appinfo.save()
+    result = dict(
+        success=success,
+        error=error
+    )
+    return HttpResponse(json.dumps(result))

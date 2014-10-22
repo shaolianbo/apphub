@@ -49,7 +49,7 @@ class AppDetailBaseSpider(scrapy.Spider):
                 req.meta['dont_redirect'] = True
                 yield req
         else:
-            for appinfo in AppInfo.objects.filter(data_source=self.data_source, is_crawled=False):
+            for appinfo in AppInfo.objects.filter(data_source=self.data_source, is_continue=True):
                 req = Request(self.app_detail_url_format % appinfo.app_id.apk_name)
                 req.meta['apk_name'] = appinfo.app_id.apk_name
                 req.meta['instance'] = appinfo
@@ -68,12 +68,15 @@ class AppDetailBaseSpider(scrapy.Spider):
         for name in self.field_names_with_css:
             if name not in item._values:
                 self.log("(%s, %s, %s) css failed" % (self.__class__.__name__, name, response.url), log.ERROR)
-        yield item
+        return item
 
     def parse(self, response):
-        for item in self._parse(response):
+        item = self._parse(response)
+        if item:
             try:
                 item.is_valid()
                 yield item
             except LackForFieldError:
                 raise
+        else:
+            return
