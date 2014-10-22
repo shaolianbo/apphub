@@ -1,6 +1,5 @@
 #!/bin/bash
 
-export APPHUB_PROFILE=test
 while true
 do
     echo 'start'
