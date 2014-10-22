@@ -18,7 +18,7 @@ setup(
     include_package_data=True,
     scripts=[
         'apphub/manage.py',
-        'crawl_wandoujia.sh'
+        'apphub/crawl_wandoujia.sh'
     ],
     install_requires=[
         "django==1.7",
