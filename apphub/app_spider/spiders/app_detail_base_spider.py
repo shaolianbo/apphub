@@ -7,14 +7,14 @@ from scrapy.http import Request
 from scrapy import log
 
 from app_spider.items import AppInfoItemLoader, LackForFieldError
-from store.models import AppIdentification, AppInfo
+from store.models import AppIdentification, AppInfo, APP
 
 
 class AppDetailBaseSpider(scrapy.Spider):
 
     data_source = 0
 
-    def __init__(self, apk_names=None, top_type=AppIdentification.APP, is_flush_db=False, *args, **kwargs):
+    def __init__(self, apk_names=None, top_type=APP, is_flush_db=False, *args, **kwargs):
         super(AppDetailBaseSpider, self).__init__(*args, **kwargs)
         self.apk_names = apk_names
         self.top_type = top_type

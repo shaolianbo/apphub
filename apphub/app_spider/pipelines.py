@@ -34,7 +34,8 @@ def update_app_related(app, item):
 
     # category
     category, created = Category.objects.get_or_create(
-        name=item['category']
+        name=item['category'],
+        top_type=app.app_id.top_type
     )
 
     # tags
@@ -73,9 +74,11 @@ class StoreAppPipeline(object):
             obj, created = AppIdentification.objects.get_or_create(
                 apk_name=item['apk_name']
             )
-            if 'top_type' in item and obj.top_type != item['top_type']:
+            if 'top_type' in item and (item['top_type'] != obj.top_type):
                 obj.top_type = item['top_type']
                 obj.save()
+            if 'category' in item:
+                cat, is_created = Category.objects.get_or_create(name=item['category'], top_type=item['top_type'])
             if created:
                 log.msg('Get new apk %s' % obj.apk_name, level=log.INFO)
                 return item

@@ -11,8 +11,15 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Category.objects.all()
+    model = Category
     serializer_class = CategorySerializer
+
+    def get_queryset(self):
+        queryset = Category.objects.all()
+        top_type = self.request.QUERY_PARAMS.get('top_type', None)
+        if top_type:
+            queryset = queryset.filter(top_type=top_type)
+        return queryset
 
 
 class PermissionViewSet(viewsets.ReadOnlyModelViewSet):

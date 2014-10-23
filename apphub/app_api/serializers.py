@@ -6,8 +6,14 @@ from store.models import (
 
 
 class CategorySerializer(HyperlinkedModelSerializer):
+    tags = SerializerMethodField('get_tags')
+
+    def get_tags(self, obj):
+        return [tag[0] for tag in obj.tags.all()[:10].values_list('name')]
+
     class Meta:
         model = Category
+        fields = ['name', 'top_type', 'tags']
 
 
 class AppSerializer(HyperlinkedModelSerializer):
