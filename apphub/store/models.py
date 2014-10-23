@@ -4,6 +4,14 @@ from __future__ import unicode_literals
 from django.db import models
 
 
+APP = 1
+GAME = 2
+TYPE_CHOICES = (
+    (APP, '应用'),
+    (GAME, '游戏')
+)
+
+
 class Tag(models.Model):
     """
     标签
@@ -21,14 +29,16 @@ class Category(models.Model):
     """
     分类
     """
-    name = models.CharField(max_length=50, unique=True, verbose_name="app类型名称")
+    name = models.CharField(max_length=50, verbose_name="app类型名称")
     tags = models.ManyToManyField(Tag, verbose_name='标签')
+    top_type = models.IntegerField(default=APP, choices=TYPE_CHOICES, verbose_name='顶级分类: 应用/游戏')
 
     def __unicode__(self):
         return self.name
 
     class Meta:
         verbose_name = verbose_name_plural = '分类'
+        unique_together = ('name', 'top_type')
 
 
 class Permission(models.Model):
@@ -49,12 +59,6 @@ class AppIdentification(models.Model):
     """
     app 唯一标识: 抓取数据的基础
     """
-    APP = 1
-    GAME = 2
-    TYPE_CHOICES = (
-        (APP, '应用'),
-        (GAME, '游戏')
-    )
     apk_name = models.CharField(max_length=100, unique=True, verbose_name="apk包名称, app的唯一标识")
     top_type = models.IntegerField(default=APP, choices=TYPE_CHOICES, verbose_name='顶级分类: 应用/游戏')
 
