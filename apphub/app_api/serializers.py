@@ -21,6 +21,7 @@ class AppSerializer(HyperlinkedModelSerializer):
     tags = SerializerMethodField('get_tags_names')
     screen_shots = SerializerMethodField('get_screen_shots')
     app_id = SerializerMethodField('get_apk_name')
+    top_type = SerializerMethodField('get_top_type')
 
     class Meta:
         model = AppInfo
@@ -36,6 +37,9 @@ class AppSerializer(HyperlinkedModelSerializer):
 
     def get_apk_name(self, obj):
         return obj.app_id.apk_name
+
+    def get_top_type(self, obj):
+        return obj.app_id.top_type
 
 
 class ScreenshotSerializer(HyperlinkedModelSerializer):
