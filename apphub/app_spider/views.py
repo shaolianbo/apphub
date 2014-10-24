@@ -1,6 +1,4 @@
-import json
-
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, JsonResponse
 from django.views.decorators.http import require_GET
 
 from app_spider.management.commands.run_spider import Command
@@ -19,8 +17,7 @@ def crawl(request):
         success=len(saved_apps) == len(apk_names),
         saved_apps=saved_apps
     )
-    resp = HttpResponse(json.dumps(resp_body))
-    return resp
+    return JsonResponse(resp_body)
 
 
 @require_GET
@@ -40,4 +37,4 @@ def change_continue(request):
         success=success,
         error=error
     )
-    return HttpResponse(json.dumps(result))
+    return JsonResponse(result)
