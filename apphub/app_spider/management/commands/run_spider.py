@@ -13,7 +13,7 @@ from scrapy.utils.project import get_project_settings
 from multiprocessing import Queue, Process
 
 from app_spider.spiders.wandoujia.wandoujia_detail_spider import WandoujiaDetailSpider
-from app_spider.signals import appinfo_saved
+from app_spider.signals import crawl_success
 from store.models import APP
 
 
@@ -33,26 +33,26 @@ class CrawlerWorker(Process):
         self.apk_names = apk_names
         self.top_type = top_type
 
-    def on_appinfo_saved(self, spider, apk_name):
-        self.saved_apps.append(apk_name)
+    def on_crawl_success(self, spider, apk_name, reason):
+        self.success_apps.append((apk_name, reason))
 
     def on_spider_close(self, spider, reason):
         self.crawler.stats.set_value('finish_time', datetime.utcnow(), spider=spider)
         self.crawler.stats.set_value('finish_reason', reason, spider=spider)
-        self.crawler.stats.set_value('saved_apps', self.saved_apps, spider=spider)
-        self.result_queue.put(self.saved_apps)
+        self.crawler.stats.set_value('success_apps', self.success_apps, spider=spider)
+        self.result_queue.put(self.success_apps)
         reactor.stop()
 
     def run(self):
         # spider
         os.environ['SCRAPY_SETTINGS_MODULE'] = 'app_spider.settings'
-        self.saved_apps = []
+        self.success_apps = []
         spider = WandoujiaDetailSpider(apk_names=self.apk_names, top_type=self.top_type)
         settings = get_project_settings()
         crawler = Crawler(settings)
         self.crawler = crawler
         crawler.signals.connect(self.on_spider_close, signal=signals.spider_closed)
-        crawler.signals.connect(self.on_appinfo_saved, signal=appinfo_saved)
+        crawler.signals.connect(self.on_crawl_success, signal=crawl_success)
         crawler.configure()
         crawler.crawl(spider)
         crawler.start()

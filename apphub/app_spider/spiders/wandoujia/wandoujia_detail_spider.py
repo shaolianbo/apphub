@@ -33,8 +33,6 @@ class WandoujiaDetailSpider(AppDetailBaseSpider):
     def _parse(self, response):
         item = super(WandoujiaDetailSpider, self)._parse(response)
         instance = response.meta['instance']
-        if item['last_version'] and (item['last_version'] == instance.last_version):
-            return None
         tags_css = 'body > div.container > div.detail-wrap > div:nth-child(2) > div.col-right > div > dl > dd.tag-box > a::text'
         tags = response.css(tags_css).extract()
         item['category'] = tags[0]

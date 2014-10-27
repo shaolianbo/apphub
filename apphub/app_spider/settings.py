@@ -37,12 +37,14 @@ COOKIES_ENABLED = True
 
 if profile in ['dev', 'test']:
     ITEM_PIPELINES = {
+        'app_spider.pipelines.FilterPipeline': 50,
         'app_spider.pipelines.StoreAppPipeline': 100,
     }
     APK_DOWNLOAD_DIR = os.path.join(os.path.expanduser('~'), 'apks')
 else:
     ITEM_PIPELINES = {
-        'app_spider.pipelines.AppImagePipeline': 1,
+        'app_spider.pipelines.FilterPipeline': 50,
+        'app_spider.pipelines.AppImagePipeline': 60,
         'app_spider.pipelines.StoreAppPipeline': 100,
     }
 
@@ -54,4 +56,4 @@ DOWNLOAD_DELAY = 0.25
 
 # custome configure
 
-DATA_SYNC_API = "http://localhost:8000/sync_from_spider"
+DATA_SYNC_API = "http://10.10.93.39:10100/sync_from_spider"

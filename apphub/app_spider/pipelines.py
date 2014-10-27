@@ -10,7 +10,7 @@ from requests.exceptions import RequestException
 
 from store.models import AppIdentification, Permission, Category, Tag, Screenshot
 from app_spider.items import AppIdentificationItem, AppInfoItem
-from app_spider.signals import appinfo_saved
+from app_spider.signals import crawl_success
 
 
 APK_DETAILS_FILED_NAMES = [
@@ -62,6 +62,55 @@ def update_app_related(app, item):
     app.save()
 
 
+class FilterPipeline(object):
+    """
+    过滤不需要更新的app
+    """
+    def __init__(self, crawler):
+        self.crawler = crawler
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler)
+
+    def process_item(self, item, spider):
+        if item.__class__ == AppInfoItem:
+            app = item['instance']
+        if item['last_version'] and (item['last_version'] == app.last_version):
+            self.crawler.signals.send_catch_log(crawl_success, spider=spider, apk_name=app.app_id.apk_name, reason='版本已最新,不需要更新')
+            raise DropItem('%s(%s) version is newest' % (app.app_id.apk_name, app.last_version))
+        else:
+            return item
+
+
+class AppImagePipeline(ImagesPipeline):
+    def get_media_requests(self, item, info):
+        if 'logo' in item:
+            yield Request(item['logo']['url'])
+        if 'screenshots' in item:
+            for shot in item['screenshots']:
+                yield Request(shot['url'])
+
+    def item_completed(self, results, item, info):
+        """
+        results 的数据结构:
+        [(True, {url:'源地址', path:'存储地址'}), ... (False, Error)...]
+        results 元素的顺序与get_media_requests中yield的顺序相同
+        """
+        if 'logo' in item:
+            logo_result = results[0]
+            if logo_result[0]:
+                item['logo']['path'] = logo_result[1]['path']
+            screenshots_results = results[1:]
+        else:
+            screenshots_results = results
+
+        for i in range(len(item['screenshots'])):
+            if screenshots_results[i][0]:
+                item['screenshots'][i]['path'] = screenshots_results[i][1]['path']
+        return item
+
+
 class StoreAppPipeline(object):
 
     def __init__(self, crawler):
@@ -100,38 +149,10 @@ class StoreAppPipeline(object):
             # 相关信息
             update_app_related(app, item)
             spider.log('update ok %s' % item['apk_name'], log.INFO)
-            self.crawler.signals.send_catch_log(appinfo_saved, spider=spider, apk_name=app.apk_name)
+            self.crawler.signals.send_catch_log(crawl_success, spider=spider, apk_name=app.apk_name, reason='抓取到新版本,更新成功')
             try:
                 res = requests.get("%s/?apk_name=%s" % (self.crawler.settings['DATA_SYNC_API'], app.app_id.apk_name))
                 spider.log('sync data response(%s) : %s' % (res.status_code, res.text), log.DEBUG)
             except RequestException as e:
                 spider.log('sync data error: %s' % e, log.ERROR)
             return item
-
-
-class AppImagePipeline(ImagesPipeline):
-    def get_media_requests(self, item, info):
-        if 'logo' in item:
-            yield Request(item['logo']['url'])
-        if 'screenshots' in item:
-            for shot in item['screenshots']:
-                yield Request(shot['url'])
-
-    def item_completed(self, results, item, info):
-        """
-        results 的数据结构:
-        [(True, {url:'源地址', path:'存储地址'}), ... (False, Error)...]
-        results 元素的顺序与get_media_requests中yield的顺序相同
-        """
-        if 'logo' in item:
-            logo_result = results[0]
-            if logo_result[0]:
-                item['logo']['path'] = logo_result[1]['path']
-            screenshots_results = results[1:]
-        else:
-            screenshots_results = results
-
-        for i in range(len(item['screenshots'])):
-            if screenshots_results[i][0]:
-                item['screenshots'][i]['path'] = screenshots_results[i][1]['path']
-        return item

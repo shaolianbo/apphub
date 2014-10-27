@@ -3,19 +3,20 @@ from django.views.decorators.http import require_GET
 
 from app_spider.management.commands.run_spider import Command
 from store.models import AppInfo
+from store.models import GAME
 
 
 @require_GET
 def crawl(request):
     apk_names = request.GET.getlist('apk_names', [])
-    top_type = request.GET.get('top_type', 0)
+    top_type = request.GET.get('top_type', GAME)
     if not (apk_names and top_type):
-        return HttpResponseBadRequest('post param wrong')
+        return HttpResponseBadRequest('param wrong')
     c = Command(apk_names, top_type)
-    saved_apps = c.crawl()
+    success_apps = c.crawl()
     resp_body = dict(
-        success=len(saved_apps) == len(apk_names),
-        saved_apps=saved_apps
+        success=len(success_apps) == len(apk_names),
+        success_apps=success_apps
     )
     return JsonResponse(resp_body)
 
