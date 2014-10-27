@@ -51,3 +51,7 @@ if profile in ['test', 'product']:
     LOG_STDOUT = True
 
 DOWNLOAD_DELAY = 0.25
+
+# custome configure
+
+DATA_SYNC_API = "http://localhost:8000/sync_from_spider"

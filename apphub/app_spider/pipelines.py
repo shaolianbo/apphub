@@ -5,6 +5,8 @@ from datetime import datetime
 from scrapy.exceptions import DropItem
 from scrapy import log, Request
 from scrapy.contrib.pipeline.images import ImagesPipeline
+import requests
+from requests.exceptions import RequestException
 
 from store.models import AppIdentification, Permission, Category, Tag, Screenshot
 from app_spider.items import AppIdentificationItem, AppInfoItem
@@ -99,6 +101,11 @@ class StoreAppPipeline(object):
             update_app_related(app, item)
             spider.log('update ok %s' % item['apk_name'], log.INFO)
             self.crawler.signals.send_catch_log(appinfo_saved, spider=spider, apk_name=app.apk_name)
+            try:
+                res = requests.get("%s/?apk_name=%s" % (self.crawler.settings['DATA_SYNC_API'], app.app_id.apk_name))
+                spider.log('sync data response(%s) : %s' % (res.status_code, res.text), log.DEBUG)
+            except RequestException as e:
+                spider.log('sync data error: %s' % e, log.ERROR)
             return item
 
 
