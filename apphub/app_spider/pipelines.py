@@ -76,9 +76,11 @@ class FilterPipeline(object):
     def process_item(self, item, spider):
         if item.__class__ == AppInfoItem:
             app = item['instance']
-        if item['last_version'] and (item['last_version'] == app.last_version):
-            self.crawler.signals.send_catch_log(crawl_success, spider=spider, apk_name=app.app_id.apk_name, reason='版本已最新,不需要更新')
-            raise DropItem('%s(%s) version is newest' % (app.app_id.apk_name, app.last_version))
+            if item['last_version'] and (item['last_version'] == app.last_version):
+                self.crawler.signals.send_catch_log(crawl_success, spider=spider, apk_name=app.app_id.apk_name, reason='版本已最新,不需要更新')
+                raise DropItem('%s(%s) version is newest' % (app.app_id.apk_name, app.last_version))
+            else:
+                return item
         else:
             return item
 
