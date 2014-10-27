@@ -7,7 +7,7 @@ from scrapy.http import Request
 from scrapy import log
 
 from app_spider.items import AppInfoItemLoader, LackForFieldError
-from store.models import AppIdentification, AppInfo, APP
+from store.models import AppIdentification, AppInfo, APP, GAME
 
 
 class AppDetailBaseSpider(scrapy.Spider):
@@ -54,7 +54,7 @@ class AppDetailBaseSpider(scrapy.Spider):
                 req.meta['dont_redirect'] = True
                 yield req
         else:
-            for appinfo in AppInfo.objects.filter(data_source=self.data_source, is_continue=True):
+            for appinfo in AppInfo.objects.filter(data_source=self.data_source, is_continue=True, app_id__top_type=GAME):
                 req = Request(self.app_detail_url_format % appinfo.app_id.apk_name)
                 req.meta['apk_name'] = appinfo.app_id.apk_name
                 req.meta['instance'] = appinfo
