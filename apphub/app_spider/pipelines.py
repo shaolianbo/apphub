@@ -152,7 +152,10 @@ class StoreAppPipeline(object):
             update_app_related(app, item)
             spider.log('update ok %s' % item['apk_name'], log.INFO)
             try:
-                res = requests.get("%s/?apk_name=%s" % (self.crawler.settings['DATA_SYNC_API'], app.app_id.apk_name))
+                url = "%s/?apk_name=%s" % (self.crawler.settings['DATA_SYNC_API'], app.app_id.apk_name)
+                if self.crawler.settings.get('IS_INSERT_DORAEMON', False):
+                    url += '&insert=1'
+                res = requests.get(url)
                 spider.log('sync data response(%s) : %s' % (res.status_code, res.text), log.DEBUG)
                 # 只有抓取和同步都完成时，　才发送完成信号
                 if (res.status_code == 200) and (res.json()['success']):

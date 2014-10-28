@@ -51,9 +51,12 @@ else:
 if profile in ['test', 'product']:
     LOG_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'info.log')
     LOG_STDOUT = True
+    DATA_SYNC_API = "http://10.10.93.39:10100/sync_from_spider"
+else:
+    DATA_SYNC_API = 'http://0.0.0.0:8000/sync_from_spider'
 
 DOWNLOAD_DELAY = 0.25
 
 # custome configure
 
-DATA_SYNC_API = "http://10.10.93.39:10100/sync_from_spider"
+IS_INSERT_DORAEMON = False

@@ -4,9 +4,11 @@ from django.views.decorators.http import require_GET
 from app_spider.management.commands.run_spider import Command
 from store.models import AppInfo
 from store.models import GAME
+from tools.jsonp_decorator import jsonp
 
 
 @require_GET
+@jsonp
 def crawl(request):
     apk_names = request.GET.getlist('apk_names', [])
     top_type = request.GET.get('top_type', GAME)
@@ -22,6 +24,7 @@ def crawl(request):
 
 
 @require_GET
+@jsonp
 def change_continue(request):
     apk_names = request.GET.getlist('apk_names', [])
     error = {}
