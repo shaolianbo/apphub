@@ -151,10 +151,12 @@ class StoreAppPipeline(object):
             # 相关信息
             update_app_related(app, item)
             spider.log('update ok %s' % item['apk_name'], log.INFO)
-            self.crawler.signals.send_catch_log(crawl_success, spider=spider, apk_name=app.apk_name, reason='抓取到新版本,更新成功')
             try:
                 res = requests.get("%s/?apk_name=%s" % (self.crawler.settings['DATA_SYNC_API'], app.app_id.apk_name))
                 spider.log('sync data response(%s) : %s' % (res.status_code, res.text), log.DEBUG)
+                # 只有抓取和同步都完成时，　才发送完成信号
+                if (res.status_code == 200) and (res.json()['success']):
+                    self.crawler.signals.send_catch_log(crawl_success, spider=spider, apk_name=app.apk_name, reason='抓取到新版本,更新成功')
             except RequestException as e:
                 spider.log('sync data error: %s' % e, log.ERROR)
             return item
