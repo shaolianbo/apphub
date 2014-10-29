@@ -6,4 +6,4 @@ supervisor
 mysql-python
 pillow
 djangorestframework
-e .
+-e .
