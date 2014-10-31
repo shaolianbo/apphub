@@ -29,6 +29,7 @@ setup(
         "mysql-python",
         "pillow",
         "djangorestframework",
-        "gevent"
+        "gevent",
+        "requests"
     ],
 )
