@@ -74,6 +74,8 @@ class FilterPipeline(object):
         return cls(crawler)
 
     def process_item(self, item, spider):
+        if self.crawler.settings['FORCE_UPDATE']:
+            return item
         if item.__class__ == AppInfoItem:
             app = item['instance']
             if item['last_version'] and (item['last_version'] == app.last_version):
@@ -159,7 +161,7 @@ class StoreAppPipeline(object):
                 spider.log('sync data response(%s) : %s' % (res.status_code, res.text), log.DEBUG)
                 # 只有抓取和同步都完成时，　才发送完成信号
                 if (res.status_code == 200) and (res.json()['success']):
-                    self.crawler.signals.send_catch_log(crawl_success, spider=spider, apk_name=app.apk_name, reason='抓取到新版本,更新成功')
+                    self.crawler.signals.send_catch_log(crawl_success, spider=spider, apk_name=app.apk_name, reason='抓取成功')
             except RequestException as e:
                 spider.log('sync data error: %s' % e, log.ERROR)
             return item

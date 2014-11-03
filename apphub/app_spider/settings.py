@@ -51,7 +51,7 @@ else:
 if profile in ['test', 'product']:
     LOG_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'info.log')
     LOG_STDOUT = True
-    DATA_SYNC_API = "http://t1.ams.sohuno.com/api/sync_from_spider"
+    DATA_SYNC_API = "http://t2.ams.sohuno.com/api/sync_from_spider"
 else:
     DATA_SYNC_API = 'http://0.0.0.0:8000/api/sync_from_spider'
 
@@ -59,4 +59,8 @@ DOWNLOAD_DELAY = 0.25
 
 # custome configure
 
+# 抓取的数据是否强制插入后台
 IS_INSERT_DORAEMON = False
+
+# 是否强制更新，即使版本号相同
+FORCE_UPDATE = False
