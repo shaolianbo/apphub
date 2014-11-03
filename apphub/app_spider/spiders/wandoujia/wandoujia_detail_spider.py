@@ -12,7 +12,7 @@ class WandoujiaDetailSpider(AppDetailBaseSpider):
     app_detail_url_format = "http://www.wandoujia.com/apps/%s"
     data_source = AppInfo.WANDOUJIA
     # css selector
-    css_logo = "body > div.container > div.detail-wrap > div.detail-top.clearfix > div.app-icon > img::attr(src)"
+    css_logo_origin_url = "body > div.container > div.detail-wrap > div.detail-top.clearfix > div.app-icon > img::attr(src)"
     css_name = 'body > div.container > div.detail-wrap > div.detail-top.clearfix > div.app-info > p.app-name > span::text'
     css_download_url = 'body > div.container > div.detail-wrap > div.detail-top.clearfix > div.app-info > div > a.install-btn::attr(href)'
     css_screenshots = 'body > div.container > div.detail-wrap > div:nth-child(2) > div.col-left > div.screenshot > div.j-scrollbar-wrap > div.view-box > div > img::attr(src)'

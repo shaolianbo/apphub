@@ -69,7 +69,7 @@ class AppInfoItem(DefaultsItem):
     tags = Field(default=[])
     intro = Field(default='')
     download_url = Field(default='')
-    logo = Field(default='')
+    logo_origin_url = Field(default='')
     screenshots = Field(default=[])
     data_source = Field(default=AppInfo.WANDOUJIA)
     last_version = Field(default='')
@@ -81,19 +81,12 @@ class AppInfoItem(DefaultsItem):
     developer = Field(default='')
 
 
-def image_field_in_processor(url):
-    return {'url': url, 'path': ''}
-
-
 class AppInfoItemLoader(ItemLoader):
     default_item_class = AppInfoItem
 
     default_output_processor = TakeFirst()
     default_input_processor = MapCompose(unicode.strip)
 
-    logo_in = MapCompose(image_field_in_processor)
-
-    screenshots_in = MapCompose(image_field_in_processor)
     screenshots_out = Identity()
 
     intro_out = Join('<br>')

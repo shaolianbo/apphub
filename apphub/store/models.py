@@ -82,10 +82,8 @@ class AppInfo(models.Model):
     app_id = models.ForeignKey(AppIdentification, verbose_name='应用唯一标识')
     data_source = models.IntegerField(choices=DATA_SOURCE_CHOICES, verbose_name='数据来源')
     name = models.CharField(max_length=255, blank=True, null=True, verbose_name='app名称')
-    logo = models.ImageField(upload_to='logo', blank=True, null=True, verbose_name='app图标')
     logo_origin_url = models.URLField(max_length=200, blank=True, null=True, verbose_name='coolapk logo下载地址')
     download_url = models.URLField(max_length=200, blank=True, null=True, verbose_name='下载地址')
-    apk_package = models.FileField(upload_to='apks', blank=True, null=True, verbose_name='apk包的本地存储地址')
     category = models.ForeignKey(Category, null=True, verbose_name="所属分类")
     tags = models.ManyToManyField(Tag, verbose_name="标签")
     score = models.FloatField(default=0, verbose_name='评分')
@@ -115,7 +113,6 @@ class AppInfo(models.Model):
 
 class Screenshot(models.Model):
     app = models.ForeignKey(AppInfo, verbose_name="所属应用")
-    image = models.ImageField(upload_to="screenshot", verbose_name="截图")
     origin_url = models.URLField(max_length=200, blank=True, null=True, verbose_name='coolapk 截图下载地址')
 
     def __unicode__(self):

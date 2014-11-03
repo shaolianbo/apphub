@@ -44,7 +44,6 @@ if profile in ['dev', 'test']:
 else:
     ITEM_PIPELINES = {
         'app_spider.pipelines.FilterPipeline': 50,
-        'app_spider.pipelines.AppImagePipeline': 60,
         'app_spider.pipelines.StoreAppPipeline': 100,
     }
 

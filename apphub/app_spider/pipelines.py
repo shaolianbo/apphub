@@ -3,8 +3,7 @@ from __future__ import unicode_literals
 from datetime import datetime
 
 from scrapy.exceptions import DropItem
-from scrapy import log, Request
-from scrapy.contrib.pipeline.images import ImagesPipeline
+from scrapy import log
 import requests
 from requests.exceptions import RequestException
 
@@ -15,7 +14,7 @@ from app_spider.signals import crawl_success
 
 APK_DETAILS_FILED_NAMES = [
     'name', 'apk_name', 'last_version', 'rom', 'language', 'size', 'developer',
-    'intro', 'download_url', 'score', 'update_date', 'update_log'
+    'intro', 'download_url', 'score', 'update_date', 'update_log', 'logo_origin_url'
 ]
 
 
@@ -54,9 +53,8 @@ def update_app_related(app, item):
     for pic in item['screenshots']:
         shot, created = Screenshot.objects.get_or_create(
             app=app,
-            origin_url=pic['url'],
+            origin_url=pic,
         )
-        shot.image = pic['path']
         shot.save()
 
     app.save()
@@ -85,34 +83,6 @@ class FilterPipeline(object):
                 return item
         else:
             return item
-
-
-class AppImagePipeline(ImagesPipeline):
-    def get_media_requests(self, item, info):
-        if 'logo' in item:
-            yield Request(item['logo']['url'])
-        if 'screenshots' in item:
-            for shot in item['screenshots']:
-                yield Request(shot['url'])
-
-    def item_completed(self, results, item, info):
-        """
-        results 的数据结构:
-        [(True, {url:'源地址', path:'存储地址'}), ... (False, Error)...]
-        results 元素的顺序与get_media_requests中yield的顺序相同
-        """
-        if 'logo' in item:
-            logo_result = results[0]
-            if logo_result[0]:
-                item['logo']['path'] = logo_result[1]['path']
-            screenshots_results = results[1:]
-        else:
-            screenshots_results = results
-
-        for i in range(len(item['screenshots'])):
-            if screenshots_results[i][0]:
-                item['screenshots'][i]['path'] = screenshots_results[i][1]['path']
-        return item
 
 
 class StoreAppPipeline(object):
@@ -145,8 +115,6 @@ class StoreAppPipeline(object):
             # 基本信息
             for key in APK_DETAILS_FILED_NAMES:
                 setattr(app, key, item[key])
-            app.logo = item['logo']['path']
-            app.logo_origin_url = item['logo']['url']
             app.is_crawled = 1
             app.last_crawl_time = datetime.now()
             app.save()
