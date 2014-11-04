@@ -33,7 +33,7 @@ class AppSerializer(HyperlinkedModelSerializer):
         return [tag.name for tag in obj.tags.all()]
 
     def get_screen_shots(self, obj):
-        return obj.screenshot_set.all().values('image', 'origin_url')
+        return [shot[0] for shot in obj.screenshot_set.all().values_list('origin_url')]
 
     def get_apk_name(self, obj):
         return obj.app_id.apk_name
