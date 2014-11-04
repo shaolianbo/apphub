@@ -14,7 +14,7 @@ from multiprocessing import Queue, Process
 
 from app_spider.spiders.wandoujia.wandoujia_detail_spider import WandoujiaDetailSpider
 from app_spider.signals import crawl_success
-from store.models import APP
+from store.models import GAME
 
 
 class DateTimeEncoder(json.JSONEncoder):
@@ -27,7 +27,7 @@ class DateTimeEncoder(json.JSONEncoder):
 
 class CrawlerWorker(Process):
 
-    def __init__(self, apk_names, result_queue, top_type=APP):
+    def __init__(self, apk_names, result_queue, top_type=GAME):
         super(CrawlerWorker, self).__init__()
         self.result_queue = result_queue
         self.apk_names = apk_names
@@ -79,12 +79,12 @@ class Command(BaseCommand):
                     ),
         make_option('--top_type',
                     dest='top_type',
-                    default=APP,
-                    help='app类型(1:应用, 2:游戏), 默认为应用'
+                    default=GAME,
+                    help='app类型(1:应用, 2:游戏), 默认为游戏'
                     ),
     )
 
-    def __init__(self, apk_names=None, top_type=APP, *args, **kwargs):
+    def __init__(self, apk_names=None, top_type=GAME, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)
         self.apk_names = apk_names
         self.top_type = int(top_type)

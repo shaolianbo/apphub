@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from datetime import datetime
+import json
 
-from scrapy.exceptions import DropItem
 from scrapy import log
-import requests
-from requests.exceptions import RequestException
+from scrapy.exceptions import DropItem
+from scrapy.http import Request
 
 from store.models import AppIdentification, Permission, Category, Tag, Screenshot
 from app_spider.items import AppIdentificationItem, AppInfoItem
@@ -121,15 +121,32 @@ class StoreAppPipeline(object):
             # 相关信息
             update_app_related(app, item)
             spider.log('update ok %s' % item['apk_name'], log.INFO)
-            try:
-                url = "%s/?apk_name=%s" % (self.crawler.settings['DATA_SYNC_API'], app.app_id.apk_name)
-                if self.crawler.settings.get('IS_INSERT_DORAEMON', False):
-                    url += '&insert=1'
-                res = requests.get(url)
-                spider.log('sync data response(%s) : %s' % (res.status_code, res.text), log.DEBUG)
-                # 只有抓取和同步都完成时，　才发送完成信号
-                if (res.status_code == 200) and (res.json()['success']):
-                    self.crawler.signals.send_catch_log(crawl_success, spider=spider, apk_name=app.apk_name, reason='抓取成功')
-            except RequestException as e:
-                spider.log('sync data error: %s' % e, log.ERROR)
-            return item
+            # sync data to Doraemon
+            url = "%s/?apk_name=%s" % (self.crawler.settings['DATA_SYNC_API'], app.app_id.apk_name)
+            if self.crawler.settings.get('IS_INSERT_DORAEMON', False):
+                url += '&insert=1'
+
+            # 返回defer, 同步到Doraemon
+            request = Request(url=url)
+            request.callback = None
+            request.errback = None
+            dfd = self.crawler.engine.download(request, spider)
+            dfd.addCallbacks(
+                callback=self._sync_callback, callbackArgs=(item['apk_name'], spider),
+                errback=self._sync_errback, errbackArgs=(item['apk_name'], spider))
+            dfd.addErrback(spider.log, level=log.ERROR)
+            return dfd.addBoth(lambda _: item)
+
+    def _sync_callback(self, response, apk_name, spider):
+        if response.status != 200:
+            spider.log('同步%s失败: %s' % (apk_name, response.status), log.INFO)
+            return
+        body = json.loads(response.body)
+        if body['success']:
+            self.crawler.signals.send_catch_log(crawl_success, spider=spider, apk_name=apk_name, reason='抓取成功')
+            spider.log('同步%s成功' % apk_name, log.INFO)
+        else:
+            spider.log('同步%s失败: %s' % (apk_name, response.body), log.ERROR)
+
+    def _sync_errback(self, failure, apk_name, spider):
+        spider.log('API访问异常%s: %s' % (apk_name, failure.value), log.ERROR)
