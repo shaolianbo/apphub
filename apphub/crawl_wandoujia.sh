@@ -1,6 +1,6 @@
 #!/bin/bash
 # crontab:
-# 0 0 * * * sh /path/to/the/script/crawl_wandoujia.sh -profile test -env b &>/dev/null
+# 0 0 * * * sh /path/to/the/script/crawl_wandoujia.sh -profile test -env b &>>/log
 help()
 {
    cat << HELP
@@ -35,3 +35,4 @@ export APPHUB_PROFILE=$profile
 export SCRAPY_SETTINGS_MODULE=app_spider.settings
 scrapy crawl wandoujia_list
 scrapy crawl wandoujia_detail
+echo `date` $user $ven $profile
