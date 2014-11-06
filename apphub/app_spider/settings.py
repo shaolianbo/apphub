@@ -52,4 +52,4 @@ if profile == 'test':
     LOG_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'info.log')
     LOG_STDOUT = True
     LOG_LEVEL = 'INFO'
-    DATA_SYNC_API = "http://t2.ams.sohuno.com/api/sync_from_spider"
+    DATA_SYNC_API = "http://t1.ams.sohuno.com/api/sync_from_spider"
