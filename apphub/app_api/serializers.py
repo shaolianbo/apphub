@@ -27,7 +27,9 @@ class AppSerializer(HyperlinkedModelSerializer):
         model = AppInfo
 
     def get_category_name(self, obj):
-        return obj.category.name
+        if obj.category:
+            return obj.category.name
+        return ''
 
     def get_tags_names(self, obj):
         return [tag.name for tag in obj.tags.all()]

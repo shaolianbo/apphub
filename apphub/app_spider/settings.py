@@ -8,21 +8,8 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #
 
-# init Django
-import os
-
-import django
-
-profile = os.environ.setdefault("APPHUB_PROFILE", "dev")
-os.environ['DJANGO_SETTINGS_MODULE'] = 'apphub.settings.%s' % profile
-
-django.setup()
 
 # scrapy
-from django.conf import settings
-
-IMAGES_STORE = settings.MEDIA_ROOT
-
 BOT_NAME = 'app_spider'
 
 SPIDER_MODULES = [
@@ -32,27 +19,10 @@ NEWSPIDER_MODULE = 'app_spider.spiders'
 
 COOKIES_ENABLED = True
 
-
-# config defer from profiles
-
-if profile in ['dev', 'test']:
-    ITEM_PIPELINES = {
-        'app_spider.pipelines.FilterPipeline': 50,
-        'app_spider.pipelines.StoreAppPipeline': 100,
-    }
-    APK_DOWNLOAD_DIR = os.path.join(os.path.expanduser('~'), 'apks')
-else:
-    ITEM_PIPELINES = {
-        'app_spider.pipelines.FilterPipeline': 50,
-        'app_spider.pipelines.StoreAppPipeline': 100,
-    }
-
-if profile in ['test', 'product']:
-    LOG_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'info.log')
-    LOG_STDOUT = True
-    DATA_SYNC_API = "http://t2.ams.sohuno.com/api/sync_from_spider"
-else:
-    DATA_SYNC_API = 'http://0.0.0.0:8000/api/sync_from_spider'
+ITEM_PIPELINES = {
+    'app_spider.pipelines.FilterPipeline': 50,
+    'app_spider.pipelines.StoreAppPipeline': 100,
+}
 
 DOWNLOAD_DELAY = 0.25
 
@@ -63,3 +33,23 @@ IS_INSERT_DORAEMON = False
 
 # 是否强制更新，即使版本号相同
 FORCE_UPDATE = False
+
+# init Django
+import os
+
+import django
+
+profile = os.environ.setdefault("APPHUB_PROFILE", "dev")
+os.environ['DJANGO_SETTINGS_MODULE'] = 'apphub.settings.%s' % profile
+
+django.setup()
+
+# different config because of profile
+if profile == 'dev':
+    DATA_SYNC_API = 'http://0.0.0.0:8000/api/sync_from_spider'
+
+if profile == 'test':
+    LOG_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'info.log')
+    LOG_STDOUT = True
+    LOG_LEVEL = 'INFO'
+    DATA_SYNC_API = "http://t2.ams.sohuno.com/api/sync_from_spider"

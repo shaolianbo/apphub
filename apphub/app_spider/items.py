@@ -36,6 +36,7 @@ class AppIdentificationItem(Item):
     apk_name = Field()
     top_type = Field()
     category = Field()
+    data_source = Field()
 
 
 class DefaultsItem(Item):

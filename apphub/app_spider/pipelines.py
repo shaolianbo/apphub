@@ -7,7 +7,7 @@ from scrapy import log
 from scrapy.exceptions import DropItem
 from scrapy.http import Request
 
-from store.models import AppIdentification, Permission, Category, Tag, Screenshot
+from store.models import AppIdentification, Permission, Category, Tag, Screenshot, AppInfo
 from app_spider.items import AppIdentificationItem, AppInfoItem
 from app_spider.signals import crawl_success
 
@@ -105,6 +105,8 @@ class StoreAppPipeline(object):
             if 'category' in item:
                 cat, is_created = Category.objects.get_or_create(name=item['category'], top_type=item['top_type'])
             if created:
+                appinfo = AppInfo(app_id=obj, data_source=item['data_source'])
+                appinfo.save()
                 log.msg('Get new apk %s' % obj.apk_name, level=log.INFO)
                 return item
             else:
