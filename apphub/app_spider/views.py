@@ -10,7 +10,7 @@ from tools.jsonp_decorator import jsonp
 @require_GET
 @jsonp
 def crawl(request):
-    apk_names = request.GET.getlist('apk_names', [])
+    apk_names = request.GET.getlist('apk_name', [])
     top_type = request.GET.get('top_type', GAME)
     if not (apk_names and top_type):
         return HttpResponseBadRequest('param wrong')
@@ -26,7 +26,7 @@ def crawl(request):
 @require_GET
 @jsonp
 def change_continue(request):
-    apk_names = request.GET.getlist('apk_names', [])
+    apk_names = request.GET.getlist('apk_name', [])
     error = {}
     success = True
     for apk_name in apk_names:
