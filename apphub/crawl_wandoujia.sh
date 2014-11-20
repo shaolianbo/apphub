@@ -33,6 +33,7 @@ done
 source /home/$user/apphub/$venv/bin/activate
 export APPHUB_PROFILE=$profile
 export SCRAPY_SETTINGS_MODULE=app_spider.settings
+export http_proxy=http://10.11.157.27:8741
 scrapy crawl wandoujia_list
 scrapy crawl wandoujia_detail
 echo `date` $user $ven $profile
