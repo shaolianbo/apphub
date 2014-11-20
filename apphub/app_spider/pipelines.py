@@ -71,6 +71,7 @@ class FilterPipeline(object):
         return cls(crawler)
 
     def process_item(self, item, spider):
+        # 如果不是自动抓取, 则不进行过滤
         if self.crawler.settings['FORCE_UPDATE']:
             return item
         if item.__class__ == AppInfoItem:
@@ -125,10 +126,7 @@ class StoreAppPipeline(object):
             update_app_related(app, item)
             spider.log('update ok %s' % item['apk_name'], log.INFO)
             # sync data to Doraemon
-            url = "%s/?apk_name=%s" % (self.crawler.settings['DATA_SYNC_API'], app.app_id.apk_name)
-            if self.crawler.settings.get('IS_INSERT_DORAEMON', False):
-                url += '&insert=1'
-
+            url = "%s/?apk_name=%s&force=%s" % (self.crawler.settings['DATA_SYNC_API'], app.app_id.apk_name, self.crawler.settings.get('FORCE_UPDATE'))
             # 返回defer, 同步到Doraemon
             request = Request(url=url)
             request.callback = None

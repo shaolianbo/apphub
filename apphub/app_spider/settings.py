@@ -28,11 +28,7 @@ DOWNLOAD_DELAY = 0.25
 
 # custome configure
 
-# 抓取的数据是否强制插入后台
-IS_INSERT_DORAEMON = False
-
-# 是否强制更新，即使版本号相同
-FORCE_UPDATE = False
+FORCE_UPDATE = 0
 
 # init Django
 import os

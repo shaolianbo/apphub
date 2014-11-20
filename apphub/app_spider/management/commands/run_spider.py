@@ -49,8 +49,7 @@ class CrawlerWorker(Process):
         self.success_apps = []
         spider = WandoujiaDetailSpider(apk_names=self.apk_names, top_type=self.top_type)
         settings = get_project_settings()
-        settings.set('IS_INSERT_DORAEMON', True)
-        settings.set('FORCE_UPDATE', True)
+        settings.set('FORCE_UPDATE', 1)
         crawler = Crawler(settings)
         self.crawler = crawler
         crawler.signals.connect(self.on_spider_close, signal=signals.spider_closed)
