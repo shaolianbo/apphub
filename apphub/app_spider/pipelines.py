@@ -4,7 +4,6 @@ from datetime import datetime
 import json
 
 from scrapy import log
-from scrapy.exceptions import DropItem
 from scrapy.http import Request
 
 from store.models import AppIdentification, Permission, Category, Tag, Screenshot, AppInfo
@@ -78,7 +77,8 @@ class FilterPipeline(object):
             app = item['instance']
             if item['last_version'] and (item['last_version'] == app.last_version):
                 self.crawler.signals.send_catch_log(crawl_success, spider=spider, apk_name=app.app_id.apk_name, reason='版本已最新,不需要更新')
-                raise DropItem('%s(%s) version is newest' % (app.app_id.apk_name, app.last_version))
+                spider.log('%s(%s) version is newest' % (app.app_id.apk_name, app.last_version), level=log.INFO)
+                return
             else:
                 return item
         else:
@@ -110,7 +110,8 @@ class StoreAppPipeline(object):
                 log.msg('Get new apk %s' % obj.apk_name, level=log.INFO)
                 return item
             else:
-                raise DropItem('Duplicate apk %s' % obj.apk_name)
+                spider.log('Duplicate apk %s' % obj.apk_name, level=log.INFO)
+                return
 
         if item.__class__ == AppInfoItem:
             app = item['instance']
