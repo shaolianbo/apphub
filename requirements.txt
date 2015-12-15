@@ -1,4 +1,4 @@
--i http://10.13.85.57:12180/simple/
+essay
 django==1.7
 Scrapy
 gunicorn

@@ -1,14 +1,13 @@
 #AppHub
-隶属于AMS(App Management System)的爬虫项目.爬虫抓取豌豆荚的游戏数据, 存储到爬虫数据库, 然后通知AMS后台([Doraemon](http://git.m.sohuno.com/mpc/doraemon)), 拉取最新数据; 同时,apphub提供了必要的接口, 用于查询和同步数据.
+爬虫抓取豌豆荚的游戏数据, 存储到爬虫数据库. 提供了必要的接口, 用于查询\同步数据, 调用爬虫.
 
 ###部署方法
 虚拟机需要预先安装libfii-devel
 1.使用essay发版和部署
-2. 部署爬虫: 
+2. 部署爬虫:
 	修改crontab, `crontab -e`
-	如果部署在a环境下
 	添加:
-	`0 0 * * * sh /home/solar/a/bin/crawl_wandoujia.sh -profile test -env a &>>/log`
+	`0 0 * * * sh /home_path/bin/crawl_wandoujia.sh -profile test -env a &>>/log`
 	说明:
 	profile:  项目profile
 	env:  项目部署的虚拟环境
@@ -66,7 +65,7 @@ apk_name 非必须, 查询的应用包名.如果不提供报名,则返回所有�
 	}
 	]
 	}
-	
+
 如果查询不到应用,response_code==200, body.count==0
 
 ####爬虫调用接口
@@ -88,6 +87,6 @@ status_code == 200: 访问成功,body:
 	success_apps: [ ],    # 成功抓取到的应用的包名列表
 	success: false/true   # 抓取是否全部成功
 	}
-		
+
 status_code == 400 : 参数错误
 status_code == 5xx:  爬虫程序出了问题
